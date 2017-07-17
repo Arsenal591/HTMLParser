@@ -50,7 +50,8 @@ var isDigit = x=>/^[0-9]$/.test(x);
 var isSpace = x=>/^[\s]$/.test(x);
 
 function emit(token){
-
+	if(token !== null && (token.type !== 'str' || /^\s*$/.test(token.str) === false))
+		console.log(token);
 }
 
 class TokenizeMachine{
@@ -62,12 +63,15 @@ class TokenizeMachine{
 		switch (this.state) {
 			case DATA:
 				if(ch === '<'){
-					emit(currentToken);
-					currentToken = null;
+					emit(this.currentToken);
+					this.currentToken = null;
 					this.state = TAG_OPEN;
 				}
-				else
+				else{
+					if(this.currentToken === null)
+						this.currentToken = new Token("str");
 					this.currentToken.appendChar(ch);
+				}
 				break;
 			case TAG_OPEN:
 				if(ch === '/')
