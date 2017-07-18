@@ -42,6 +42,13 @@ class DOMTree {
 			}
 		}
 		this.__getRoot = function(){return __root;}
+		this.setId = function(id,node){
+			if(id && id.length)
+				__idMap.set(id,node);
+		}
+		this.removeId = function(id){
+			__idMap.delete(id);
+		}
 	}
 	get root(){
 		return this.__getRoot();
