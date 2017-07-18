@@ -42,7 +42,7 @@ class DOMTree {
 			}
 		}
 		this.__getRoot = function(){return __root;}
-		this.setId = function(id,node){
+		this.setId  = function(id,node){
 			if(id && id.length)
 				__idMap.set(id,node);
 		}
