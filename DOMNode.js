@@ -156,18 +156,18 @@ class DOMNode {
 	isSilbingOf(node) {
 		return this.parent === node.parent;
 	}
-	setDocument(d){
-		if(d === this.document)
+	setDocument(d) {
+		if (d === this.document)
 			return;
 		var oldDocument = this.document;
-		if(oldDocument){
-			if(this.id)
+		if (oldDocument) {
+			if (this.id)
 				oldDocument.removeId(this.id);
 		}
 		this.document = d;
-		if(this.id && d)
+		if (this.id && d)
 			d.setId(this.id, this);
-		for(let child of this.children)
+		for (let child of this.children)
 			child.setDocument(d);
 	}
 	removeChild(node) {
@@ -179,7 +179,7 @@ class DOMNode {
 		}
 	}
 	appendChild(node) {
-		if(node === this || this.isDescendantOf(node)){
+		if (node === this || this.isDescendantOf(node)) {
 			// raise an error
 		}
 		if (node.type !== "document") {
@@ -196,12 +196,12 @@ class DOMNode {
 		}
 	}
 	unshiftChild(node) {
-		if(node === this || this.isDescendantOf(node)){
+		if (node === this || this.isDescendantOf(node)) {
 			//raise an error
 			return;
 		}
 		if (node.type === "document") {
-			for(let child of node.chilren)
+			for (let child of node.chilren)
 				this.unshiftChild(child);
 		} else {
 			var parent = node.parent;
@@ -214,11 +214,11 @@ class DOMNode {
 		}
 	}
 	insertBefore(newChild, refChild) {
-		if(newChild === refChild){
+		if (newChild === refChild) {
 			//raise an error
 			return;
 		}
-		if(newChild === this || this.isDescendantOf(newChild)){
+		if (newChild === this || this.isDescendantOf(newChild)) {
 			//raise an error
 			return;
 		}
@@ -245,11 +245,11 @@ class DOMNode {
 	}
 
 	insertAfter(newChild, refChild) {
-		if(newChild === refChild){
+		if (newChild === refChild) {
 			//raise an error
 			return;
 		}
-		if(newChild === this || this.isDescendantOf(newChild)){
+		if (newChild === this || this.isDescendantOf(newChild)) {
 			//raise an error
 			return;
 		}
@@ -276,9 +276,9 @@ class DOMNode {
 		}
 	}
 	replaceChild(newChild, oldChild) {
-		if(newChild === oldChild)
+		if (newChild === oldChild)
 			return;
-		if(this === newChild || this.isDescendantOf(newChild)){
+		if (this === newChild || this.isDescendantOf(newChild)) {
 			//raise an error
 			return;
 		}
@@ -290,34 +290,34 @@ class DOMNode {
 		}
 
 	}
-	extract(){
+	extract() {
 		var parent = this.parent;
-		if(parent){
+		if (parent) {
 			parent.removeChild(this);
 		}
 		this.setDocument(null);
 		return this;
 	}
-	decompose(){
+	decompose() {
 		this.extract();
-		for(let child of this.children){
+		for (let child of this.children) {
 			child.decompose();
 		}
 	}
-	toString(){
-		if(self.hasChild()){
+	toString() {
+		if (self.hasChild()) {
 			var res;
-			for(let child of this.children){
+			for (let child of this.children) {
 				res = res + child.toString();
 			}
 			return res;
-		}
-		else{
+		} else {
 			return this.text;
 		}
 	}
 
 	hasAttribute(k) {
+		k = k.toLowerCase();
 		return Boolean(this.attr[k]);
 	}
 	getAttribute(k) {
@@ -328,26 +328,29 @@ class DOMNode {
 		k = k.toLowerCase();
 		this.attr[k] = v;
 		if (k === "id" && this.document) {
-			this.document.__setIdMap(k, v);
+			this.id = v;
+			this.document.setIdMap(v, this);
+		} else if (k === "class") {
+			this.classes = v.split(/\s+/).filter(x => x.length);
 		}
 	}
 	find_all(_tagName, _attr, _str, limit = undefined, resursive = true) {
 		var generator = resursive ? this.descendantGenerator() : this.childGenerator();
 		return this._find_all(_tagName, _attr, _str, limit, generator);
 	}
-	find_all_ancestors(_tagName, _attr, _str, limit){
+	find_all_ancestors(_tagName, _attr, _str, limit) {
 		var generator = this.ancestorGenerator();
 		return this._find_all(_tagName, _attr, _str, limit, generator);
 	}
-	find_all_descendants(_tagName, _attr, _str, limit){
+	find_all_descendants(_tagName, _attr, _str, limit) {
 		var generator = this.descendantGenerator();
 		return this._find_all(_tagName, _attr, _str, limit, generator);
 	}
-	find_all_previous_siblings(_tagName, _attr, _str, limit){
+	find_all_previous_siblings(_tagName, _attr, _str, limit) {
 		var generator = this.previousSiblingGenerator();
 		return this._find_all(_tagName, _attr, _str, limit, generator);
 	}
-	find_all_next_siblings(_tagName, _attr, _str, limit){
+	find_all_next_siblings(_tagName, _attr, _str, limit) {
 		var generator = this.nextSiblingGenerator();
 		return this._find_all(_tagName, _attr, _str, limit, generator);
 	}
@@ -391,16 +394,31 @@ class Queryset {
 		if (!nodeValue)
 			return false;
 		if (typeof value === "string") {
-			if (value.startsWith("*="))
-				return nodeValue.indexOf(value.substring(2)) > -1;
-			else if (value.startsWith("^="))
-				return nodeValue.startsWith(value.substring(2));
-			else if (value.startsWith("$="))
-				return nodeValue.endsWith(value.substring(2));
-			else
-				return nodeValue === value;
-		} else if (value instanceof RegExp) {
-			return value.test(nodeValue);
+			if (key === "class") {
+				if (value.startsWith("*="))
+					return node.classes.some(x => x.indexOf(value.substring(2)) > -1);
+				else if (value.startsWith("^="))
+					return node.classes.some(x => x.startsWith(value.substring(2)));
+				else if (value.startsWith("$="))
+					return node.classes.some(x => x.endsWith(value.substring(2)));
+				else
+					return node.classes.some(x => x === value);
+			} else {
+				if (value.startsWith("*="))
+					return nodeValue.indexOf(value.substring(2)) > -1;
+				else if (value.startsWith("^="))
+					return nodeValue.startsWith(value.substring(2));
+				else if (value.startsWith("$="))
+					return nodeValue.endsWith(value.substring(2));
+				else
+					return nodeValue === value;
+			} else if (value instanceof RegExp) {
+				if (key === "class") {
+					return node.classes.some(x => value.test(x));
+				} else {
+					return value.test(nodeValue);
+				}
+			}
 		}
 	}
 	static fit(node, _tagName, _attr, _str) {
@@ -409,9 +427,9 @@ class Queryset {
 				if (node.tagName !== _tagName)
 					return false;
 			} else if (_tagName instanceof Array) {
-				for (let name of _tagName)
-					if (node.tagName !== name)
-						return false;
+				let flag =  _tagName.some(x=>x===node.tagName);
+				if(!flag)
+					return false;
 			}
 		}
 		if (_attr) {
@@ -421,10 +439,9 @@ class Queryset {
 					if (!Queryset.fitAttr(node, key, value))
 						return false;
 				} else if (value instanceof Array) {
-					for (let v of value) {
-						if (!Queryset.fitAttr(node, key, v))
-							return false;
-					}
+					let flag = value.some(x=>Queryset.fitAttr(node, key, x));
+					if(!flag)
+						return false;
 				}
 			}
 		}
@@ -436,13 +453,13 @@ class Queryset {
 	filter(_tagName, _attr, _str) {
 
 	}
-	union(otherSet){
+	union(otherSet) {
 
 	}
-	intersection(otherSet){
+	intersection(otherSet) {
 
 	}
-	difference(otherSet){
-		
+	difference(otherSet) {
+
 	}
 }
