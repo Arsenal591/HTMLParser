@@ -49,6 +49,9 @@ class DOMTree {
 		this.removeId = function(id){
 			__idMap.delete(id);
 		}
+		this.getNodeById = function(id){
+			return __idMap.get(id);
+		}
 	}
 	get root(){
 		return this.__getRoot();

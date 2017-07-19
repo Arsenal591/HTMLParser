@@ -156,47 +156,72 @@ class DOMNode {
 	isSilbingOf(node) {
 		return this.parent === node.parent;
 	}
+	setDocument(d){
+		if(d === this.document)
+			return;
+		var oldDocument = this.document;
+		if(oldDocument){
+			if(this.id)
+				oldDocument.removeId(this.id);
+		}
+		this.document = d;
+		if(this.id && d)
+			d.setId(this.id, this);
+		for(let child of this.children)
+			child.setDocument(d);
+	}
 	removeChild(node) {
 		var index = this.children.indexOf(node);
 		if (index > -1) {
 			this.children.splice(index, 1);
-			if (node.docuemnt)
-				node.document.removeId(node.id);
+			node.setDocument(null);
+			node.parent = null;
 		}
-		node.parent = null;
 	}
 	appendChild(node) {
+		if(node === this || this.isDescendantOf(node)){
+			// raise an error
+		}
 		if (node.type !== "document") {
 			var parent = node.parent;
 			if (parent) {
 				parent.removeChild(node);
 			}
 			node.parent = this;
-			node.document = this.document;
-			if (node.document)
-				node.document.setId(node.id, node);
 			this.children.push(node);
+			node.setDocument(this.document);
 		} else {
 			for (let child of node.children)
 				this.appendChild(child);
 		}
 	}
 	unshiftChild(node) {
+		if(node === this || this.isDescendantOf(node)){
+			//raise an error
+			return;
+		}
 		if (node.type === "document") {
-
+			for(let child of node.chilren)
+				this.unshiftChild(child);
 		} else {
 			var parent = node.parent;
 			if (parent) {
 				parent.removeChild(node);
 			}
 			node.parent = this;
-			node.document = this.document;
-			if (node.document)
-				node.document.setId(node.id, node);
 			this.children.unshift(node);
+			node.setDocument(this.document);
 		}
 	}
 	insertBefore(newChild, refChild) {
+		if(newChild === refChild){
+			//raise an error
+			return;
+		}
+		if(newChild === this || this.isDescendantOf(newChild)){
+			//raise an error
+			return;
+		}
 		if (newChild.type === "document") {
 			for (let child of newChild.children)
 				this.insertBefore(child, refChild);
@@ -211,19 +236,27 @@ class DOMNode {
 						parent.removeChild(newChild);
 					}
 					newChild.parent = this;
-					newChild.document = this.document;
-					if (newChild.document)
-						newChild.document.setId(newChild.id, newChild);
+					index = this.children.indexOf(refChild);
 					this.children.splice(index, 0, newChild);
+					newChild.setDocument(this.document);
 				}
 			}
 		}
 	}
 
 	insertAfter(newChild, refChild) {
+		if(newChild === refChild){
+			//raise an error
+			return;
+		}
+		if(newChild === this || this.isDescendantOf(newChild)){
+			//raise an error
+			return;
+		}
 		if (newChild.type === "document") {
+			let next = refChild.getNextSibling();
 			for (let child of newChild.children)
-				this.insertAfter(child, refChild);
+				this.insertBefore(child, next);
 		} else {
 			if (refChild === null || refChild === undefined) {
 				this.unshiftChild(newChild);
@@ -235,16 +268,20 @@ class DOMNode {
 						parent.removeChild(newChild);
 					}
 					newChild.parent = this;
-					newChild.document = this.document;
-					if (newChild.document)
-						newChild.document.setId(newChild.id, newChild);
+					index = this.children.indexOf(refChild);
 					this.children.splice(index + 1, 0, newChild);
+					newChild.setDocument(this.document);
 				}
 			}
 		}
-
 	}
 	replaceChild(newChild, oldChild) {
+		if(newChild === oldChild)
+			return;
+		if(this === newChild || this.isDescendantOf(newChild)){
+			//raise an error
+			return;
+		}
 		var index = this.children.indexOf(oldChild);
 		if (index > -1) {
 			let sibling = this.children[index + 1];
@@ -253,6 +290,33 @@ class DOMNode {
 		}
 
 	}
+	extract(){
+		var parent = this.parent;
+		if(parent){
+			parent.removeChild(this);
+		}
+		this.setDocument(null);
+		return this;
+	}
+	decompose(){
+		this.extract();
+		for(let child of this.children){
+			child.decompose();
+		}
+	}
+	toString(){
+		if(self.hasChild()){
+			var res;
+			for(let child of this.children){
+				res = res + child.toString();
+			}
+			return res;
+		}
+		else{
+			return this.text;
+		}
+	}
+
 	hasAttribute(k) {
 		return Boolean(this.attr[k]);
 	}
@@ -269,6 +333,22 @@ class DOMNode {
 	}
 	find_all(_tagName, _attr, _str, limit = undefined, resursive = true) {
 		var generator = resursive ? this.descendantGenerator() : this.childGenerator();
+		return this._find_all(_tagName, _attr, _str, limit, generator);
+	}
+	find_all_ancestors(_tagName, _attr, _str, limit){
+		var generator = this.ancestorGenerator();
+		return this._find_all(_tagName, _attr, _str, limit, generator);
+	}
+	find_all_descendants(_tagName, _attr, _str, limit){
+		var generator = this.descendantGenerator();
+		return this._find_all(_tagName, _attr, _str, limit, generator);
+	}
+	find_all_previous_siblings(_tagName, _attr, _str, limit){
+		var generator = this.previousSiblingGenerator();
+		return this._find_all(_tagName, _attr, _str, limit, generator);
+	}
+	find_all_next_siblings(_tagName, _attr, _str, limit){
+		var generator = this.nextSiblingGenerator();
 		return this._find_all(_tagName, _attr, _str, limit, generator);
 	}
 
@@ -355,5 +435,14 @@ class Queryset {
 	}
 	filter(_tagName, _attr, _str) {
 
+	}
+	union(otherSet){
+
+	}
+	intersection(otherSet){
+
+	}
+	difference(otherSet){
+		
 	}
 }
