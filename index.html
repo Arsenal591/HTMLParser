@@ -3,6 +3,22 @@
 <head>
 	<title></title>
 	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<style type="text/css">
+	.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.node {
+  font: 12px sans-serif;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}</style>
 </head>
 <body>
 <input type="file" id="input">
@@ -10,13 +26,15 @@
 	<textarea id="htmlshow"></textarea>
 	<textarea id="codeedit"></textarea>
 	<svg id="visualize"></svg>
-	<button id="runscript"></button>
+	<button id="runcode">run</button>
 </div>
 <div id="errorshow">
 </div>
 </body>
+<script type="text/javascript" src="js/d3.min.js"></script>
+<script type="text/javascript" src="js/visualization.js"></script>
 <script type="text/javascript" src="js/DOMNode.js"></script>
 <script type="text/javascript" src="js/TreeConstructor.js"></script>
 <script type="text/javascript" src="js/Tokenizer.js"></script>
-<script type="text/javascript" src="js/readfile.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
 </html>
