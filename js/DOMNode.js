@@ -39,7 +39,7 @@ class DOMNode {
 	} * descendantGenerator() {
 		for (let child of this.children) {
 			yield child;
-			let gen = this.f.call(child);
+			let gen = child.descendantGenerator();
 			let v = gen.next().value;
 			while (v) {
 				yield v;
@@ -137,15 +137,18 @@ class DOMNode {
 		}
 	}
 	isChildOf(node) {
-		return this.parent === node;
+		return node ? this.parent === node : false;
 	}
 	isDescendantOf(node) {
+		if (!node)
+			return false;
 		var pos = this.parent;
 		while (pos) {
 			if (pos === node)
 				return true;
 			pos = pos.parent;
 		}
+		return false;
 	}
 	isParentOf(node) {
 		return node ? node.parent === this : false;
@@ -412,12 +415,12 @@ class Queryset {
 					return nodeValue.endsWith(value.substring(2));
 				else
 					return nodeValue === value;
-			} else if (value instanceof RegExp) {
-				if (key === "class") {
-					return node.classes.some(x => value.test(x));
-				} else {
-					return value.test(nodeValue);
-				}
+			}
+		} else if (value instanceof RegExp) {
+			if (key === "class") {
+				return node.classes.some(x => value.test(x));
+			} else {
+				return value.test(nodeValue);
 			}
 		}
 	}
@@ -427,8 +430,8 @@ class Queryset {
 				if (node.tagName !== _tagName)
 					return false;
 			} else if (_tagName instanceof Array) {
-				let flag =  _tagName.some(x=>x===node.tagName);
-				if(!flag)
+				let flag = _tagName.some(x => x === node.tagName);
+				if (!flag)
 					return false;
 			}
 		}
@@ -439,8 +442,8 @@ class Queryset {
 					if (!Queryset.fitAttr(node, key, value))
 						return false;
 				} else if (value instanceof Array) {
-					let flag = value.some(x=>Queryset.fitAttr(node, key, x));
-					if(!flag)
+					let flag = value.some(x => Queryset.fitAttr(node, key, x));
+					if (!flag)
 						return false;
 				}
 			}
