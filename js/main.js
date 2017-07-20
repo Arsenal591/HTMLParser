@@ -3,6 +3,7 @@ var htmlShow = document.getElementById("htmlshow");
 var errorShow = document.getElementById("errorshow");
 var codeArea = document.getElementById("codeedit");
 var runCodeButton = document.getElementById("runcode");
+var visualization = document.getElementById("visualize");
 var tree;
 
 htmlShow.setAttribute("readonly", true);

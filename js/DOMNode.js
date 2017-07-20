@@ -18,7 +18,7 @@ class DOMNode {
 				this.classes = arg.classes;
 				this.tagName = arg.tagName;
 				this.children = arg.children;
-				this.text = arg.children;
+				this.text = arg.text;
 				this.attr = arg.attr;
 				this.parent = arg.parent;
 				this.document = arg.document;
@@ -308,8 +308,8 @@ class DOMNode {
 		}
 	}
 	toString() {
-		if (self.hasChild()) {
-			var res;
+		if (this.hasChild()) {
+			var res = '';
 			for (let child of this.children) {
 				res = res + child.toString();
 			}
