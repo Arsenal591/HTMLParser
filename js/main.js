@@ -1,4 +1,4 @@
-var inputElement = document.getElementById("input");
+var uploadFileArea = document.getElementById("input");
 var htmlShow = document.getElementById("htmlshow");
 var errorShow = document.getElementById("errorshow");
 var codeArea = document.getElementById("codeedit");
@@ -7,21 +7,30 @@ var visualization = document.getElementById("visualize");
 var tree;
 
 htmlShow.setAttribute("readonly", true);
-var handleFiles = function() {
-	var fileList = this.files;
-	var file = fileList[0];
-	var reader = new FileReader();
-	reader.onload = function(e) {
+
+function handleUploadFile(){
+	var file = uploadFileArea.files[0];
+	var htmlReader = new FileReader();
+
+	function tokenize(){
 		tree = new DOMTree();
 		var machine = new TokenizeMachine();
-		for (let ch of reader.result) {
+		var lineNumber = 1;
+		for(let ch of htmlReader.result){
+			if(ch === '\n')
+				lineNumber++;
 			machine.transfer(ch);
 		}
 	}
-	reader.readAsText(file);
-}
-inputElement.addEventListener("change", handleFiles, false);
 
+	function displayFile(){
+		htmlShow.value = htmlReader.result;
+	}
+
+	htmlReader.addEventListener("load", function(){displayFile();tokenize();});
+	htmlReader.readAsText(file);
+}
+uploadFileArea.addEventListener("change", handleUploadFile, false);
 
 function addErrorMessage(e){
 	var msg = document.createElement("p");

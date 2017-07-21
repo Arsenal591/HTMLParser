@@ -10,7 +10,7 @@
 	width:26vw;
 	margin:1.5vw;
 	height:20vw;
-	overflow: auto;
+	overflow: scroll;
 }
 #htmlshow{
 	display: inline-block;
