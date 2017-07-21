@@ -32,12 +32,29 @@ function handleUploadFile(){
 }
 uploadFileArea.addEventListener("change", handleUploadFile, false);
 
+
 function addErrorMessage(e){
-	var msg = document.createElement("p");
-	var textNode = document.createTextNode("error");
-	msg.appendChild(textNode);
-	msg.style.backgroundColor = "yellow";
-	errorShow.appendChild(msg);
+	var errorName = e.name;
+	var msg = e.message;
+	var msgTypeNode = document.createElement("em");
+	var msgTypeTextNode = document.createTextNode(errorName + ": ")
+	msgTypeNode.appendChild(msgTypeTextNode);
+	msgTypeNode.style.color = "yellow";
+	var msgTextNode = document.createTextNode(msg);
+
+	var msgSpan = document.createElement("span");
+
+	msgSpan.appendChild(msgTypeNode);
+	msgSpan.appendChild(msgTextNode);
+	msgSpan.appendChild(document.createElement("br"));
+
+	errorShow.appendChild(msgSpan);
+}
+
+function clearErrorMessage(){
+	while(errorShow.firstChild){
+		errorShow.removeChild(errorShow.firstChild);
+	}
 }
 
 

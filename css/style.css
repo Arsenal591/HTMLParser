@@ -14,6 +14,7 @@
 }
 #htmlshow{
 	display: inline-block;
+	white-space: pre;
 }
 #codeedit, #visualize{
 	display: inline;
@@ -24,6 +25,8 @@
 }
 #errorshow
 {
+	background-color: #cccccc;
+	overflow: auto;
 	margin:30px auto 30px auto;
 	width:70vw;
 	height:15vw;
