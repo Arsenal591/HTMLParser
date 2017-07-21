@@ -30,7 +30,14 @@ function handleUploadFile() {
 }
 
 	function displayFile() {
-		htmlShow.value = htmlReader.result;
+		var results = htmlReader.result.split("\n");
+		var newResult = "";
+		var lineNumber = 0;
+		for (let x of results){
+			lineNumber++;
+			newResult = newResult + lineNumber + "  " + x + "\n";
+		}
+		htmlShow.value = newResult;
 	}
 
 	htmlReader.addEventListener("load", function() {
