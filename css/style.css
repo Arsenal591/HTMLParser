@@ -4,6 +4,7 @@
 	margin:60px auto 30px auto;
 	height:30vw;
 	background-color: yellow;
+	position: relative;
 }
 #htmlshow, #codeedit, #visualize
 {
@@ -11,6 +12,7 @@
 	margin:1.5vw;
 	height:20vw;
 	overflow: scroll;
+
 }
 #htmlshow{
 	display: inline-block;
@@ -20,8 +22,9 @@
 	display: inline;
 }
 #runcode{
-	position: relative;
+	position: absolute;
 	left:37vw;
+	top:25vw;
 }
 #errorshow
 {
@@ -30,4 +33,5 @@
 	margin:30px auto 30px auto;
 	width:70vw;
 	height:15vw;
+	position: relative;
 }

@@ -10,7 +10,7 @@ htmlShow.setAttribute("readonly", true);
 
 function handleUploadFile() {
 	var file = uploadFileArea.files[0];
-	uploadFileArea.value = '';
+	//uploadFileArea.value = '';
 	var htmlReader = new FileReader();
 
 	function tokenize() {
@@ -47,6 +47,7 @@ function handleUploadFile() {
 	});
 	htmlReader.readAsText(file);
 }
+uploadFileArea.addEventListener("click", function(){uploadFileArea.value='';},false);
 uploadFileArea.addEventListener("change", handleUploadFile, false);
 
 
