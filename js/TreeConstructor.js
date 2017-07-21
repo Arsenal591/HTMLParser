@@ -1,6 +1,7 @@
 class DOMTree {
 	constructor() {
 		var __root = new DOMNode("document");
+		__root.setDocument(this);
 		var __idMap = new Map();
 		var __currentPos = __root;
 		this.buildDOMTree = function(token) {
@@ -8,7 +9,6 @@ class DOMTree {
 				case 'str':{
 					let newChild = new DOMNode("text");
 					newChild.text = token.str;
-					newChild.parent = __currentPos;
 					__currentPos.appendChild(newChild);
 					break;
 				}
@@ -25,7 +25,6 @@ class DOMTree {
 						newChild.classes = token.attr['class'].split(/\s+/).filter(x => x.length);
 					newChild.tagName = token.tagName;
 					newChild.attr = token.attr;
-					newChild.parent = __currentPos;
 					__currentPos.appendChild(newChild);
 					if (!token.selfClosing)
 						__currentPos = newChild;

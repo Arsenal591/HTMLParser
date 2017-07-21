@@ -43,7 +43,7 @@ class DOMNode {
 			let v = gen.next().value;
 			while (v) {
 				yield v;
-				v = gen.next().value();
+				v = gen.next().value;
 			}
 		}
 	} * nextSiblingGenerator() {
@@ -180,10 +180,14 @@ class DOMNode {
 			node.setDocument(null);
 			node.parent = null;
 		}
+		else{
+			throw new RangeError("Parameter 1 is not a child of this node.")
+		}
 	}
 	appendChild(node) {
 		if (node === this || this.isDescendantOf(node)) {
-			// raise an error
+			throw new RangeError("Paramter 1 is above this node, you cannot append it as a child.");
+			return;
 		}
 		if (node.type !== "document") {
 			var parent = node.parent;
@@ -200,7 +204,7 @@ class DOMNode {
 	}
 	unshiftChild(node) {
 		if (node === this || this.isDescendantOf(node)) {
-			//raise an error
+			throw new RangeError("Paramter 1 is above this node, you cannot append it as a child.");
 			return;
 		}
 		if (node.type === "document") {
@@ -218,11 +222,11 @@ class DOMNode {
 	}
 	insertBefore(newChild, refChild) {
 		if (newChild === refChild) {
-			//raise an error
+			throw new RangeError("newChild is the same as refChild");
 			return;
 		}
 		if (newChild === this || this.isDescendantOf(newChild)) {
-			//raise an error
+			throw new RangeError("newChild is above this node, you cannot append it as a child.");
 			return;
 		}
 		if (newChild.type === "document") {
@@ -243,17 +247,20 @@ class DOMNode {
 					this.children.splice(index, 0, newChild);
 					newChild.setDocument(this.document);
 				}
+				else{
+					throw new RangeError("refChild is not a child of this node.");
+				}
 			}
 		}
 	}
 
 	insertAfter(newChild, refChild) {
 		if (newChild === refChild) {
-			//raise an error
+			throw new RangeError("newChild is the same as refChild.");
 			return;
 		}
 		if (newChild === this || this.isDescendantOf(newChild)) {
-			//raise an error
+			throw new RangeError("newChild is above this node, you cannot append it as a child.");
 			return;
 		}
 		if (newChild.type === "document") {
@@ -275,6 +282,9 @@ class DOMNode {
 					this.children.splice(index + 1, 0, newChild);
 					newChild.setDocument(this.document);
 				}
+				else{
+					throw new RangeError("refChild is not a child of this node.");
+				}
 			}
 		}
 	}
@@ -282,7 +292,7 @@ class DOMNode {
 		if (newChild === oldChild)
 			return;
 		if (this === newChild || this.isDescendantOf(newChild)) {
-			//raise an error
+			throw new RangeError("newChild is above this node, you cannot append it as a child.")
 			return;
 		}
 		var index = this.children.indexOf(oldChild);
@@ -290,6 +300,9 @@ class DOMNode {
 			let sibling = this.children[index + 1];
 			this.removeChild(oldChild);
 			this.insertBefore(newChild, sibling);
+		}
+		else{
+			throw new RangeError("oldChild is not a child of this node.");
 		}
 
 	}
@@ -330,9 +343,10 @@ class DOMNode {
 	setAttribute(k, v) {
 		k = k.toLowerCase();
 		this.attr[k] = v;
-		if (k === "id" && this.document) {
+		if (k === "id") {
 			this.id = v;
-			this.document.setIdMap(v, this);
+			if(this.document)
+				this.document.setIdMap(v, this);
 		} else if (k === "class") {
 			this.classes = v.split(/\s+/).filter(x => x.length);
 		}
@@ -372,7 +386,7 @@ class DOMNode {
 			} else
 				break;
 		}
-
+		return result;
 	}
 }
 
