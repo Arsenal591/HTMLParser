@@ -10,6 +10,7 @@ htmlShow.setAttribute("readonly", true);
 
 function handleUploadFile() {
 	var file = uploadFileArea.files[0];
+	uploadFileArea.value = '';
 	var htmlReader = new FileReader();
 
 	function tokenize() {
