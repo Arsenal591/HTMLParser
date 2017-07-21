@@ -1,5 +1,8 @@
+var uniqueIdForVisualization = 0;
+
 class DOMNode {
 	constructor() {
+		this.uniqueId = uniqueIdForVisualization++;
 		if (arguments.length == 1) {
 			let arg = arguments[0];
 			if (typeof arg === "string") {

@@ -4,7 +4,7 @@ var svgTree = d3.layout.tree().separation(function(a, b) {
 });
 
 function getTreeNodesRecursively(root, level, current, ori) {
-	if (current === level) {
+	if (current === level - 1) {
 		return {
 			"tagName": root.tagName,
 			"type": root.type,
@@ -14,6 +14,7 @@ function getTreeNodesRecursively(root, level, current, ori) {
 			"attr": root.attr,
 			"children": null,
 			"isme": root === ori,
+			"uniqueId":root.uniqueId,
 		}
 	} else {
 		var result = {
@@ -25,6 +26,7 @@ function getTreeNodesRecursively(root, level, current, ori) {
 			"attr": root.attr,
 			"children": [],
 			"isme": root === ori,
+			"uniqueId":root.uniqueId,
 		}
 		for (let child of root.children) {
 			var x = getTreeNodesRecursively(child, level, current + 1, ori);
@@ -39,6 +41,7 @@ function getTreeNodesRecursively(root, level, current, ori) {
 
 function getTreeNodes(center, level) {
 	var hasParent = Boolean(center.parent);
+	//var root = center;
 	var root = hasParent ? center.parent : center;
 	var res = getTreeNodesRecursively(root, level, 0, center);
 	return res;
@@ -62,7 +65,7 @@ function redraw(center) {
 		d.y = d.depth * 50;
 	})
 
-	var nodeUpdate = svg.selectAll(".node").data(nodes);
+	var nodeUpdate = svg.selectAll(".node").data(nodes, function(d){return d.uniqueId;});
 	var nodeEnter = nodeUpdate.enter();
 	var nodeExit = nodeUpdate.exit();
 
@@ -78,26 +81,31 @@ function redraw(center) {
 		return d.type === "element" ? d.tagName : d.type;
 	});
 
-	var updateNodes = nodeUpdate.transition().duration(500).attr("transform", function(d) {
+	var updateNodes = nodeUpdate.transition().duration(5000).attr("transform", function(d) {
 		return "translate(" + d.x + "," + d.y + ")";
 	});
 	updateNodes.select("circle").attr("r", 5).style("fill", function(d) {
 		return d.isme ? "blue" : "#fff";
 	});
+	updateNodes.select("text").attr("text-anchor", function(d) {
+		return d.children ? "end" : "start"
+	}).text(function(d) {
+		return d.type === "element" ? d.tagName : d.type;
+	});
 
-	var exitNodes = nodeExit.transition().duration(500).attr("transform", function(d) {
+	var exitNodes = nodeExit.transition().duration(5000).attr("transform", function(d) {
 		return "translate(" + nodes[0].x + "," + nodes[0].y + ")";
 	}).remove();
 
-	var linkUpdate = svg.selectAll(".link").data(links);
+	var linkUpdate = svg.selectAll(".link").data(links, function(d){return d.target.uniqueId;});
 	var linkEnter = linkUpdate.enter();
 	var linkExit = linkUpdate.exit();
 
 	linkEnter.append("path").attr("class", "link").attr("d", d3.svg.diagonal().projection(function(d) {
 		return [nodes[0].x, nodes[0].y]
 	}));
-	linkUpdate.transition().duration(500).attr("d", diagonal);
-	linkExit.transition().duration(500).attr("d", d3.svg.diagonal().projection(function(d) {
+	linkUpdate.transition().duration(5000).attr("d", diagonal);
+	linkExit.transition().duration(5000).attr("d", d3.svg.diagonal().projection(function(d) {
 			return [nodes[0].x, nodes[0].y];
 		})).remove();
 	}
