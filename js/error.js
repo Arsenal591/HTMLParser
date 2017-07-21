@@ -1,8 +1,8 @@
 class PraseError extends Error{
-	constructor(level, message, rowNumber){
+	constructor(message, level="warning", lineNumber=undefined){
+		super(message);
 		this.name = "PraseError";
-		this.level = level;
-		this.message = message;
+		this.level = level;// warning or fatal
 		this.lineNumber = lineNumber;
 	}
 }

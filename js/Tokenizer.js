@@ -87,6 +87,8 @@ class TokenizeMachine {
 					this.currentToken.appendTagName(ch);
 					this.state = TAG_NAME;
 				} else {
+					throw new PraseError("In state 'TAG_OPEN', expecting a letter or a '/'\
+						, instead of " + ch + " .", "fatal");
 					//raise an error
 				}
 				break;
@@ -96,7 +98,8 @@ class TokenizeMachine {
 					this.currentToken.appendTagName(ch);
 					this.state = TAG_NAME;
 				} else {
-					//raise an error;
+					throw new PraseError("In state 'END_TAG_OPEN', expecting a letter\
+						, instead of " + ch + " .", "fatal");
 				}
 				break;
 			case TAG_NAME:
@@ -111,7 +114,8 @@ class TokenizeMachine {
 				} else if (isLetter) {
 					this.currentToken.appendTagName(ch)
 				} else {
-					//raise an error
+					throw new PraseError("In state 'TAG_NAME', expecting a '/', '>' or a letter\
+						, instead of " + ch + " .", "fatal");
 				}
 				break;
 			case BEFORE_ATTR_NAME:
@@ -126,6 +130,9 @@ class TokenizeMachine {
 				} else if (isLetter(ch)) {
 					this.currentToken.appendAttr(ch);
 					this.state = ATTR_NAME;
+				} else {
+					throw new PraseError("In state 'BEFORE_ATTR_NAME', expecting a '/', '>' or a letter\
+						, instead of " + ch + " .", "fatal");
 				}
 				break;
 			case ATTR_NAME:
@@ -143,7 +150,8 @@ class TokenizeMachine {
 					this.currentToken = null;
 					this.state = DATA;
 				} else if (ch === "'" || ch === '"' || ch === '<') {
-					//raise an error
+					throw new PraseError("In state 'ATTR_NAME', '\"', '\'', '<' are not allowed."
+						, "fatal");
 				} else {
 					this.currentToken.appendAttr(ch);
 				}
@@ -165,7 +173,8 @@ class TokenizeMachine {
 					this.currentToken.appendAttr(ch);
 					this.state = ATTR_NAME;
 				} else {
-					//raise an error
+					throw new PraseError("In state 'AFTER_ATTR_NAME', expecting '/', '=', '>' or a letter\
+						, instead of , instead of " + ch + " .", "fatal");
 				}
 				break;
 			case BEFORE_ATTR_VALUE:
@@ -176,7 +185,8 @@ class TokenizeMachine {
 				} else if (ch === "'") {
 					this.state = ATTR_VALUE_SINGLE;
 				} else if (ch === '>' || ch === '=' || ch === '<') {
-					//raise an error
+					throw new PraseError("In state 'BEFORE_ATTR_VALUE', '>', '=', '<' are not  allowed"
+						, "fatal");
 				} else {
 					this.currentToken.appendValue(ch);
 					this.state = ATTR_VALUE_UNQUOTED;
@@ -208,7 +218,8 @@ class TokenizeMachine {
 					this.currentToken = null;
 					this.state = DATA;
 				} else if (ch === '"' || ch === "'" || ch === '<' || ch === '=') {
-					//raise an error
+					throw new PraseError("In state 'ATTR_VALUE_UNQUOTED', '\"', '\'', '<', '='\
+						are not allowed", "fatal");
 				} else {
 					this.currentToken.appendValue(ch);
 				}
@@ -223,7 +234,8 @@ class TokenizeMachine {
 					this.currentToken = null;
 					this.state = DATA;
 				} else {
-					//raise an error
+					throw new PraseError("In state 'AFTER_ATTR_VALUE_QUOTED', expecting a letter,\
+						'/' or '>', , instead of " + ch + " .", "fatal");
 				}
 				break;
 			case SELF_CLOSING_START_TAG:
@@ -233,7 +245,8 @@ class TokenizeMachine {
 					this.currentToken = null;
 					this.state = DATA;
 				} else {
-					//raise an error
+					throw new PraseError("In state 'SELF_CLOSING_START_TAG', expecting a '>'\
+						,  instead of " + ch + " .", "fatal");
 				}
 				break;
 			default:

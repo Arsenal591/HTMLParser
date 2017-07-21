@@ -8,32 +8,41 @@ var tree;
 
 htmlShow.setAttribute("readonly", true);
 
-function handleUploadFile(){
+function handleUploadFile() {
 	var file = uploadFileArea.files[0];
 	var htmlReader = new FileReader();
 
-	function tokenize(){
-		tree = new DOMTree();
-		var machine = new TokenizeMachine();
-		var lineNumber = 1;
-		for(let ch of htmlReader.result){
-			if(ch === '\n')
-				lineNumber++;
+	function tokenize() {
+	tree = new DOMTree();
+	var machine = new TokenizeMachine();
+	var lineNumber = 1;
+	for (let ch of htmlReader.result) {
+		if (ch === '\n')
+			lineNumber++;
+		try {
 			machine.transfer(ch);
+		} catch (e) {
+			let showError = e;
+			e.lineNumber = lineNumber;
+			addErrorMessage(e);
 		}
 	}
+}
 
-	function displayFile(){
+	function displayFile() {
 		htmlShow.value = htmlReader.result;
 	}
 
-	htmlReader.addEventListener("load", function(){displayFile();tokenize();});
+	htmlReader.addEventListener("load", function() {
+		displayFile();
+		tokenize();
+	});
 	htmlReader.readAsText(file);
 }
 uploadFileArea.addEventListener("change", handleUploadFile, false);
 
 
-function addErrorMessage(e){
+function addErrorMessage(e) {
 	var errorName = e.name;
 	var msg = e.message;
 	var msgTypeNode = document.createElement("em");
@@ -48,26 +57,26 @@ function addErrorMessage(e){
 	msgSpan.appendChild(msgTextNode);
 	msgSpan.appendChild(document.createElement("br"));
 
+	console.log(e.lineNumber);
+
 	errorShow.appendChild(msgSpan);
 }
 
-function clearErrorMessage(){
-	while(errorShow.firstChild){
+function clearErrorMessage() {
+	while (errorShow.firstChild) {
 		errorShow.removeChild(errorShow.firstChild);
 	}
 }
 
 
-function runCode(){
+function runCode() {
 	var src = codeArea.value;
-	try{
+	try {
 		var result = eval(src);
 		console.log(result);
-	}
-	catch(e){
+	} catch (e) {
 		addErrorMessage(e);
-	}
-	finally{
+	} finally {
 		codeArea.value = '';
 	}
 }
