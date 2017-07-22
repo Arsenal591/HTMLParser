@@ -3,6 +3,7 @@ var svgTree = d3.layout.tree().separation(function(a, b) {
 	return (a.parent === b.parent ? 1 : 2);
 });
 var currentCenter;
+var data;
 
 function getTreeNodesRecursively(root, level, current, ori) {
 	if (current === level) {
@@ -36,6 +37,18 @@ function getTreeNodes(center, level) {
 	return res;
 }
 
+function toggle(d){
+	if(d.children){
+		d._children = d.children;
+		d.children = null;
+	}
+	else{
+		d.children = d._children;
+		d._children = null;
+	}
+	console.log(data.children[0].children);
+}
+
 function moveSubtree(d, dx, dy){
 	d.x += dx;
 	d.y += dy;
@@ -63,7 +76,8 @@ function handleDragEvent(d) {
 }
 
 function handleDragEndEvent(d){
-	redraw(currentCenter);
+
+	redraw(currentCenter, true);
 }
 
 function handleMouseOverEvent(d){
@@ -74,13 +88,15 @@ function handleMouseOutEvent(d){
 	d3.select(this).style("cursor", "default");
 }
 
-function redraw(center) {
+
+
+function redraw(center, cached=false) {
 	currentCenter = center;
 	var width = visualization.clientWidth;
 	var height = visualization.clientHeight;
 	var maxLevel = Math.floor(height / 50);
 
-	var data = getTreeNodes(center, maxLevel);
+	data = cached? data : getTreeNodes(center, maxLevel);
 
 	svgTree.size([width, height]);
 	var diagonal = d3.svg.diagonal();
@@ -100,14 +116,22 @@ function redraw(center) {
 	var enterNodes = nodeEnter.append("g")
 		.attr("class", "node")
 		.attr("transform", function(d) {
-			return "translate(" + nodes[0].x + "," + nodes[0].y + ")";
+			var x = d.parent? d.parent.x : nodes[0].x;
+			var y = d.parent? d.parent.y : nodes[0].y;
+			return "translate(" + x + "," + y + ")";
 		})
 		.attr("id", function(d){
 			return "node" + d.node.uniqueId;
 		})
 		.on({
 			"mouseover": handleMouseOverEvent,
-			"mouseout": handleMouseOutEvent
+			"mouseout": handleMouseOutEvent,
+			"click": function(d){
+				if(d3.event.defaultPrevented)
+					return;
+				toggle(d);
+				redraw(currentCenter, true);
+			}
 		});
 
 	var dragBehavior = d3.behavior.drag()
@@ -118,7 +142,9 @@ function redraw(center) {
 	enterNodes.append("circle")
 		.attr("r", 5)
 		.style("fill", function(d) {
-			return d.node.isme ? "blue" : "#fff";
+			if(d.isme)
+				return "red";
+			return (!d.children && d._children) ? "blue" : "#fff";
 		});
 	enterNodes.append("text")
 		.attr("text-anchor", function(d) {
@@ -137,7 +163,9 @@ function redraw(center) {
 		.select("circle")
 		.attr("r", 5)
 		.style("fill", function(d) {
-			return d.node.isme ? "blue" : "#fff";
+			if(d.isme)
+				return "red";
+			return (!d.children && d._children) ? "blue" : "#fff";
 		});
 	updateNodes
 		.select("text")
@@ -151,7 +179,9 @@ function redraw(center) {
 	var exitNodes = nodeExit.transition()
 		.duration(5000)
 		.attr("transform", function(d) {
-			return "translate(" + nodes[0].x + "," + nodes[0].y + ")";
+			var x = d.parent? d.parent.x : nodes[0].x;
+			var y = d.parent? d.parent.y : nodes[0].y;
+			return "translate(" + x + "," + y + ")";
 		})
 		.remove();
 
@@ -164,9 +194,7 @@ function redraw(center) {
 
 	linkEnter.append("path")
 		.attr("class", "link")
-		.attr("d", d3.svg.diagonal().projection(function(d) {
-			return [nodes[0].x, nodes[0].y]
-		}))
+		.attr("d", diagonal)
 		.attr("id", function(d) {
 			return "link" + d.source.node.uniqueId + "-" + d.target.node.uniqueId
 		});
@@ -176,8 +204,6 @@ function redraw(center) {
 		.attr("d", diagonal);
 	linkExit.transition()
 		.duration(5000)
-		.attr("d", d3.svg.diagonal().projection(function(d) {
-			return [nodes[0].x, nodes[0].y];
-		}))
+		.attr("d", diagonal)
 		.remove();
 }
