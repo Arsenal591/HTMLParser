@@ -2,6 +2,7 @@ var svg = d3.select("#visualize").append("g").attr("transform", "translate(0,20)
 var svgTree = d3.layout.tree().separation(function(a, b) {
 	return (a.parent === b.parent ? 1 : 2);
 });
+var currentCenter;
 
 function getTreeNodesRecursively(root, level, current, ori) {
 	if (current === level) {
@@ -35,12 +36,31 @@ function getTreeNodes(center, level) {
 	return res;
 }
 
+function moveSubtree(d, dx, dy){
+	d.x += dx;
+	d.y += dy;
+	console.log(d);
+	d3.select('#node'+ d.node.uniqueId)
+		.attr("transform", function(d) {
+			return "translate(" + d.x + "," + d.y + ")";
+		});
+	if(d.children){
+		for(let child of d.children)
+			moveSubtree(child, dx, dy);
+	}
+}
+
+function handleDragEvent(d) {
+	var dx = d3.event.dx;
+	var dy = d3.event.dy;
+	moveSubtree(d, dx, dy);
+}
 
 function redraw(center) {
+	currentCenter = center;
 	var width = visualization.clientWidth;
 	var height = visualization.clientHeight;
 	var maxLevel = Math.floor(height / 50);
-	console.log(height, maxLevel);
 
 	var data = getTreeNodes(center, maxLevel);
 
@@ -64,6 +84,21 @@ function redraw(center) {
 		.attr("transform", function(d) {
 			return "translate(" + nodes[0].x + "," + nodes[0].y + ")";
 		})
+		.attr("id", function(d){
+			return "node" + d.node.uniqueId;
+		})
+	/*var dragBehavoir = d3.behavior.drag()
+		.on("drag", function(d){
+			d.x += d3.event.dx;
+			d.y += d3.event.dy;
+			d3.select(this).attr("transform", function(d){
+				return "translate(" + d.x + "," + d.y + ")";
+			})
+		});*/
+	var dragBehavoir = d3.behavior.drag()
+		.on("drag", handleDragEvent);
+	enterNodes.call(dragBehavoir);
+
 	enterNodes.append("circle")
 		.attr("r", 5)
 		.style("fill", function(d) {
@@ -115,7 +150,11 @@ function redraw(center) {
 		.attr("class", "link")
 		.attr("d", d3.svg.diagonal().projection(function(d) {
 			return [nodes[0].x, nodes[0].y]
-		}));
+		}))
+		.attr("id", function(d) {
+			return "link" + d.source.node.uniqueId + "-" + d.target.node.uniqueId
+		});
+
 	linkUpdate.transition()
 		.duration(5000)
 		.attr("d", diagonal);
