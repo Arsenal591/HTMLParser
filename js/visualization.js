@@ -88,9 +88,7 @@ function handleMouseOutEvent(d){
 	d3.select(this).style("cursor", "default");
 }
 
-
-
-function redraw(center, cached=false) {
+function redraw(center, cached=false, source) {
 	currentCenter = center;
 	var width = visualization.clientWidth;
 	var height = visualization.clientHeight;
@@ -107,6 +105,9 @@ function redraw(center, cached=false) {
 		d.y = d.depth * 50;
 	})
 
+	if(!source)
+		source = nodes[0];
+
 	var nodeUpdate = svg.selectAll(".node").data(nodes, function(d) {
 		return d.node.uniqueId;
 	});
@@ -116,9 +117,7 @@ function redraw(center, cached=false) {
 	var enterNodes = nodeEnter.append("g")
 		.attr("class", "node")
 		.attr("transform", function(d) {
-			var x = d.parent? d.parent.x : nodes[0].x;
-			var y = d.parent? d.parent.y : nodes[0].y;
-			return "translate(" + x + "," + y + ")";
+			return "translate(" + source.x + "," + source.y + ")";
 		})
 		.attr("id", function(d){
 			return "node" + d.node.uniqueId;
@@ -130,7 +129,7 @@ function redraw(center, cached=false) {
 				if(d3.event.defaultPrevented)
 					return;
 				toggle(d);
-				redraw(currentCenter, true);
+				redraw(currentCenter, true, d);
 			}
 		});
 
@@ -179,9 +178,7 @@ function redraw(center, cached=false) {
 	var exitNodes = nodeExit.transition()
 		.duration(5000)
 		.attr("transform", function(d) {
-			var x = d.parent? d.parent.x : nodes[0].x;
-			var y = d.parent? d.parent.y : nodes[0].y;
-			return "translate(" + x + "," + y + ")";
+			return "translate(" + source.x + "," + source.y + ")";
 		})
 		.remove();
 
@@ -194,9 +191,12 @@ function redraw(center, cached=false) {
 
 	linkEnter.append("path")
 		.attr("class", "link")
-		.attr("d", diagonal)
+		.attr("d", d3.svg.diagonal()
+			.projection(function(d){
+					return [source.x, source.y];
+			}))
 		.attr("id", function(d) {
-			return "link" + d.source.node.uniqueId + "-" + d.target.node.uniqueId
+			return "link" + d.source.node.uniqueId + "-" + d.target.node.uniqueId;
 		});
 
 	linkUpdate.transition()
@@ -204,6 +204,9 @@ function redraw(center, cached=false) {
 		.attr("d", diagonal);
 	linkExit.transition()
 		.duration(5000)
-		.attr("d", diagonal)
+		.attr("d", d3.svg.diagonal()
+			.projection(function(d){
+					return [source.x, source.y];
+			}))
 		.remove();
 }
