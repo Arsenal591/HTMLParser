@@ -57,8 +57,9 @@ var isDigit = x => /^[0-9]$/.test(x);
 var isSpace = x => /^[\s]$/.test(x);
 
 function emit(token) {
-	if (token !== null && (token.type !== 'str' || /^\s*$/.test(token.str) === false))
-		tree.buildDOMTree(token);
+	if (token !== null && (token.type !== 'str' || /^\s*$/.test(token.str) === false)){
+			tree.buildDOMTree(token);
+	}
 }
 
 class TokenizeMachine {
@@ -70,9 +71,16 @@ class TokenizeMachine {
 		switch (this.state) {
 			case DATA:
 				if (ch === '<') {
-					emit(this.currentToken);
-					this.currentToken = null;
-					this.state = TAG_OPEN;
+					try{
+						emit(this.currentToken);
+					}
+					catch(e){
+						throw e;
+					}
+					finally{
+						this.currentToken = null;
+						this.state = TAG_OPEN;
+					}
 				} else {
 					if (this.currentToken === null)
 						this.currentToken = new Token("str");
@@ -108,9 +116,16 @@ class TokenizeMachine {
 				} else if (ch === '/') {
 					this.state = SELF_CLOSING_START_TAG;
 				} else if (ch === '>') {
-					emit(this.currentToken);
-					this.currentToken = null;
-					this.state = DATA;
+					try{
+						emit(this.currentToken);
+					}
+					catch(e){
+						throw e;
+					}
+					finally{
+						this.currentToken = null;
+						this.state = DATA;
+					}
 				} else if (isLetter) {
 					this.currentToken.appendTagName(ch)
 				} else {
@@ -124,9 +139,16 @@ class TokenizeMachine {
 				} else if (ch === '/') {
 					this.state = SELF_CLOSING_START_TAG;
 				} else if (ch === '>') {
-					emit(this.currentToken);
-					this.currentToken = null;
-					this.state = DATA;
+					try{
+						emit(this.currentToken);
+					}
+					catch(e){
+						throw e;
+					}
+					finally{
+						this.currentToken = null;
+						this.state = DATA;
+					}
 				} else if (isLetter(ch)) {
 					this.currentToken.appendAttr(ch);
 					this.state = ATTR_NAME;
@@ -146,9 +168,16 @@ class TokenizeMachine {
 					this.state = BEFORE_ATTR_VALUE;
 				} else if (ch === '>') {
 					this.currentToken.insertAttr();
-					emit(this.currentToken);
-					this.currentToken = null;
-					this.state = DATA;
+					try{
+						emit(this.currentToken);
+					}
+					catch(e){
+						throw e;
+					}
+					finally{
+						this.currentToken = null;
+						this.state = DATA;
+					}
 				} else if (ch === "'" || ch === '"' || ch === '<') {
 					throw new PraseError("In state 'ATTR_NAME', '\"', '\'', '<' are not allowed."
 						, "fatal");
@@ -166,9 +195,16 @@ class TokenizeMachine {
 					this.state = BEFORE_ATTR_VALUE;
 				} else if (ch === '>') {
 					this.currentToken.insertAttr();
-					emit(this.currentToken);
-					this.currentToken = null;
-					this.state = DATA;
+					try{
+						emit(this.currentToken);
+					}
+					catch(e){
+						throw e;
+					}
+					finally{
+						this.currentToken = null;
+						this.state = DATA;
+					}
 				} else if (isLetter) {
 					this.currentToken.appendAttr(ch);
 					this.state = ATTR_NAME;
@@ -214,9 +250,16 @@ class TokenizeMachine {
 					this.state = BEFORE_ATTR_NAME;
 				} else if (ch === '>') {
 					this.currentToken.insertAttr();
-					emit(this.currentToken);
-					this.currentToken = null;
-					this.state = DATA;
+					try{
+						emit(this.currentToken);
+					}
+					catch(e){
+						throw e;
+					}
+					finally{
+						this.currentToken = null;
+						this.state = DATA;
+					}
 				} else if (ch === '"' || ch === "'" || ch === '<' || ch === '=') {
 					throw new PraseError("In state 'ATTR_VALUE_UNQUOTED', '\"', '\'', '<', '='\
 						are not allowed", "fatal");
@@ -230,9 +273,16 @@ class TokenizeMachine {
 				} else if (ch === '/') {
 					this.state = SELF_CLOSING_START_TAG;
 				} else if (ch === '>') {
-					emit(this.currentToken);
-					this.currentToken = null;
-					this.state = DATA;
+					try{
+						emit(this.currentToken);
+					}
+					catch(e){
+						throw e;
+					}
+					finally{
+						this.currentToken = null;
+						this.state = DATA;
+					}
 				} else {
 					throw new PraseError("In state 'AFTER_ATTR_VALUE_QUOTED', expecting a letter,\
 						'/' or '>', , instead of '" + ch + "'' .", "fatal");
@@ -241,9 +291,16 @@ class TokenizeMachine {
 			case SELF_CLOSING_START_TAG:
 				if (ch === '>') {
 					this.currentToken.selfClosing = true;
-					emit(this.currentToken);
-					this.currentToken = null;
-					this.state = DATA;
+					try{
+						emit(this.currentToken);
+					}
+					catch(e){
+						throw e;
+					}
+					finally{
+						this.currentToken = null;
+						this.state = DATA;
+					}
 				} else {
 					throw new PraseError("In state 'SELF_CLOSING_START_TAG', expecting a '>'\
 						,  instead of '" + ch + "'' .", "fatal");

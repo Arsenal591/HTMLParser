@@ -32,12 +32,12 @@ class DOMTree {
 						errors.push(new PraseError(errMsg, "warning"));
 					}
 					if(!isValidElement(token.tagName)){
-						errors.push(new PraseError("This tag name may have not been standerdlized: " 
+						errors.push(new PraseError("This tag name may have not been standardlized: " 
 													+ token.tagName
 													, "warning"));
 					}
 					else{
-						for(let attrName of token.attr){
+						for(let attrName in token.attr){
 							if(!isValidAttribute(attrName)){
 								errors.push(new PraseError("This attribute name may have not \
 															been standerdlized: " 
@@ -45,11 +45,11 @@ class DOMTree {
 															, "warning"));
 							}
 							else if(!isProperAttribute(token.tagName, attrName)){
-								errors.push(new PraseError("The attribute " 
+								errors.push(new PraseError("The attribute '" 
 															+ attrName 
-															+ "may not be proper for tag " 
+															+ "'' may not be proper for tag '" 
 															+ token.tagName 
-															+ "."
+															+ "'."
 															, "warning"));
 							}
 						}

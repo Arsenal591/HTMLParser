@@ -23,7 +23,7 @@ function handleUploadFile() {
 			try {
 				machine.transfer(ch);
 			} catch (errors) {
-				if (!errors instanceof Array)
+				if (!(errors instanceof Array))
 					errors = [errors];
 				for (let err of errors) {
 					err.lineNumber = lineNumber;
