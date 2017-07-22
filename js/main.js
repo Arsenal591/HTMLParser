@@ -14,27 +14,30 @@ function handleUploadFile() {
 	var htmlReader = new FileReader();
 
 	function tokenize() {
-	tree = new DOMTree();
-	var machine = new TokenizeMachine();
-	var lineNumber = 1;
-	for (let ch of htmlReader.result) {
-		if (ch === '\n')
-			lineNumber++;
-		try {
-			machine.transfer(ch);
-		} catch (e) {
-			let showError = e;
-			e.lineNumber = lineNumber;
-			addErrorMessage(e);
+		tree = new DOMTree();
+		var machine = new TokenizeMachine();
+		var lineNumber = 1;
+		for (let ch of htmlReader.result) {
+			if (ch === '\n')
+				lineNumber++;
+			try {
+				machine.transfer(ch);
+			} catch (errors) {
+				if (!errors instanceof Array)
+					errors = [errors];
+				for (let err of errors) {
+					err.lineNumber = lineNumber;
+					addErrorMessage(err);
+				}
+			}
 		}
 	}
-}
 
 	function displayFile() {
 		var results = htmlReader.result.split("\n");
 		var newResult = "";
 		var lineNumber = 0;
-		for (let x of results){
+		for (let x of results) {
 			lineNumber++;
 			newResult = newResult + lineNumber + "  " + x + "\n";
 		}
@@ -47,7 +50,9 @@ function handleUploadFile() {
 	});
 	htmlReader.readAsText(file);
 }
-uploadFileArea.addEventListener("click", function(){uploadFileArea.value='';},false);
+uploadFileArea.addEventListener("click", function() {
+	uploadFileArea.value = '';
+}, false);
 uploadFileArea.addEventListener("change", handleUploadFile, false);
 
 

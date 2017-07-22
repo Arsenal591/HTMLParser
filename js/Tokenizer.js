@@ -88,7 +88,7 @@ class TokenizeMachine {
 					this.state = TAG_NAME;
 				} else {
 					throw new PraseError("In state 'TAG_OPEN', expecting a letter or a '/'\
-						, instead of " + ch + " .", "fatal");
+						, instead of '" + ch + "'' .", "fatal");
 					//raise an error
 				}
 				break;
@@ -99,7 +99,7 @@ class TokenizeMachine {
 					this.state = TAG_NAME;
 				} else {
 					throw new PraseError("In state 'END_TAG_OPEN', expecting a letter\
-						, instead of " + ch + " .", "fatal");
+						, instead of '" + ch + "'' .", "fatal");
 				}
 				break;
 			case TAG_NAME:
@@ -115,7 +115,7 @@ class TokenizeMachine {
 					this.currentToken.appendTagName(ch)
 				} else {
 					throw new PraseError("In state 'TAG_NAME', expecting a '/', '>' or a letter\
-						, instead of " + ch + " .", "fatal");
+						, instead of '" + ch + "'' .", "fatal");
 				}
 				break;
 			case BEFORE_ATTR_NAME:
@@ -132,7 +132,7 @@ class TokenizeMachine {
 					this.state = ATTR_NAME;
 				} else {
 					throw new PraseError("In state 'BEFORE_ATTR_NAME', expecting a '/', '>' or a letter\
-						, instead of " + ch + " .", "fatal");
+						, instead of '" + ch + "'' .", "fatal");
 				}
 				break;
 			case ATTR_NAME:
@@ -174,7 +174,7 @@ class TokenizeMachine {
 					this.state = ATTR_NAME;
 				} else {
 					throw new PraseError("In state 'AFTER_ATTR_NAME', expecting '/', '=', '>' or a letter\
-						, instead of , instead of " + ch + " .", "fatal");
+						, instead of , instead of '" + ch + "'' .", "fatal");
 				}
 				break;
 			case BEFORE_ATTR_VALUE:
@@ -235,7 +235,7 @@ class TokenizeMachine {
 					this.state = DATA;
 				} else {
 					throw new PraseError("In state 'AFTER_ATTR_VALUE_QUOTED', expecting a letter,\
-						'/' or '>', , instead of " + ch + " .", "fatal");
+						'/' or '>', , instead of '" + ch + "'' .", "fatal");
 				}
 				break;
 			case SELF_CLOSING_START_TAG:
@@ -246,7 +246,7 @@ class TokenizeMachine {
 					this.state = DATA;
 				} else {
 					throw new PraseError("In state 'SELF_CLOSING_START_TAG', expecting a '>'\
-						,  instead of " + ch + " .", "fatal");
+						,  instead of '" + ch + "'' .", "fatal");
 				}
 				break;
 			default:

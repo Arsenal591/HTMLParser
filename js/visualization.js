@@ -101,7 +101,9 @@ function handleClickEvent(d) {
 
 function redraw(center, cached = false, source) {
 	currentCenter = center;
-	var oldSource = source;
+	var oldSource;
+	if(source)
+		oldSource = {x: source.x, y:source.y};
 	var width = visualization.clientWidth;
 	var height = visualization.clientHeight;
 	var maxLevel = Math.floor(height / 50);
@@ -205,7 +207,7 @@ function redraw(center, cached = false, source) {
 		.attr("class", "link")
 		.attr("d", d3.svg.diagonal()
 			.projection(function(d) {
-				return [source.x, source.y];
+				return [oldSource.x, oldSource.y];
 			}))
 		.attr("id", function(d) {
 			return "link" + d.source.node.uniqueId + "-" + d.target.node.uniqueId;

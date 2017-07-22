@@ -286,5 +286,5 @@ var isValidElement = x=> validElements.indexOf(x) > -1;
 
 var isGlobalAttribute = x => globalAttributes.indexOf(x) > -1;
 var isValidAttribute = x => x in attributeElementMap;
-var isProperAttribute = (tag, attr) => attributeElementMap[attr].indexOf(tag) > -1;
+var isProperAttribute = (tag, attr) => attributeElementMap[attr] && attributeElementMap[attr].indexOf(tag) > -1;
 var isSelfClosingElement = x=>selfClosingElements.indexOf(x) > -1;
