@@ -39,14 +39,16 @@ function getTreeNodes(center, level) {
 function moveSubtree(d, dx, dy){
 	d.x += dx;
 	d.y += dy;
-	console.log(d);
 	d3.select('#node'+ d.node.uniqueId)
 		.attr("transform", function(d) {
 			return "translate(" + d.x + "," + d.y + ")";
 		});
 	if(d.children){
-		for(let child of d.children)
+		for(let child of d.children){
 			moveSubtree(child, dx, dy);
+			let linkId = "#link" + d.node.uniqueId + "-" + child.node.uniqueId;
+			d3.select(linkId).attr("d", d3.svg.diagonal());
+		}
 	}
 }
 
@@ -54,6 +56,22 @@ function handleDragEvent(d) {
 	var dx = d3.event.dx;
 	var dy = d3.event.dy;
 	moveSubtree(d, dx, dy);
+	if(d.parent){
+		let linkId = "#link" + d.parent.node.uniqueId + "-" + d.node.uniqueId;
+		d3.select(linkId).attr("d", d3.svg.diagonal());
+	}
+}
+
+function handleDragEndEvent(d){
+	redraw(currentCenter);
+}
+
+function handleMouseOverEvent(d){
+	d3.select(this).style("cursor", "pointer");
+}
+
+function handleMouseOutEvent(d){
+	d3.select(this).style("cursor", "default");
 }
 
 function redraw(center) {
@@ -87,17 +105,15 @@ function redraw(center) {
 		.attr("id", function(d){
 			return "node" + d.node.uniqueId;
 		})
-	/*var dragBehavoir = d3.behavior.drag()
-		.on("drag", function(d){
-			d.x += d3.event.dx;
-			d.y += d3.event.dy;
-			d3.select(this).attr("transform", function(d){
-				return "translate(" + d.x + "," + d.y + ")";
-			})
-		});*/
-	var dragBehavoir = d3.behavior.drag()
-		.on("drag", handleDragEvent);
-	enterNodes.call(dragBehavoir);
+		.on({
+			"mouseover": handleMouseOverEvent,
+			"mouseout": handleMouseOutEvent
+		});
+
+	var dragBehavior = d3.behavior.drag()
+		.on("drag", handleDragEvent)
+		.on("dragend", handleDragEndEvent);
+	enterNodes.call(dragBehavior);
 
 	enterNodes.append("circle")
 		.attr("r", 5)
