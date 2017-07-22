@@ -5,6 +5,8 @@ var svgTree = d3.layout.tree().separation(function(a, b) {
 var currentCenter;
 var data;
 
+var dragdx = 0, dragdy = 0;
+
 function getTreeNodesRecursively(root, level, current, ori) {
 	if (current === level) {
 		return {
@@ -37,27 +39,25 @@ function getTreeNodes(center, level) {
 	return res;
 }
 
-function toggle(d){
-	if(d.children){
+function toggle(d) {
+	if (d.children) {
 		d._children = d.children;
 		d.children = null;
-	}
-	else{
+	} else {
 		d.children = d._children;
 		d._children = null;
 	}
-	console.log(data.children[0].children);
 }
 
-function moveSubtree(d, dx, dy){
+function moveSubtree(d, dx, dy) {
 	d.x += dx;
 	d.y += dy;
-	d3.select('#node'+ d.node.uniqueId)
+	d3.select('#node' + d.node.uniqueId)
 		.attr("transform", function(d) {
 			return "translate(" + d.x + "," + d.y + ")";
 		});
-	if(d.children){
-		for(let child of d.children){
+	if (d.children) {
+		for (let child of d.children) {
 			moveSubtree(child, dx, dy);
 			let linkId = "#link" + d.node.uniqueId + "-" + child.node.uniqueId;
 			d3.select(linkId).attr("d", d3.svg.diagonal());
@@ -68,33 +68,45 @@ function moveSubtree(d, dx, dy){
 function handleDragEvent(d) {
 	var dx = d3.event.dx;
 	var dy = d3.event.dy;
+	dragdx += dx;
+	dragdy += dy;
 	moveSubtree(d, dx, dy);
-	if(d.parent){
+	if (d.parent) {
 		let linkId = "#link" + d.parent.node.uniqueId + "-" + d.node.uniqueId;
 		d3.select(linkId).attr("d", d3.svg.diagonal());
 	}
 }
 
-function handleDragEndEvent(d){
-
-	redraw(currentCenter, true);
+function handleDragEndEvent(d) {
+	if(dragdx > 10 || dragdy > 10)
+		redraw(currentCenter, true);
+	dragdx = 0;
+	dragdy = 0;
 }
 
-function handleMouseOverEvent(d){
+function handleMouseOverEvent(d) {
 	d3.select(this).style("cursor", "pointer");
 }
 
-function handleMouseOutEvent(d){
+function handleMouseOutEvent(d) {
 	d3.select(this).style("cursor", "default");
 }
 
-function redraw(center, cached=false, source) {
+function handleClickEvent(d) {
+	if (d3.event.defaultPrevented)
+		return;
+	toggle(d);
+	redraw(currentCenter, true, d);
+}
+
+function redraw(center, cached = false, source) {
 	currentCenter = center;
+	var oldSource = source;
 	var width = visualization.clientWidth;
 	var height = visualization.clientHeight;
 	var maxLevel = Math.floor(height / 50);
 
-	data = cached? data : getTreeNodes(center, maxLevel);
+	data = cached ? data : getTreeNodes(center, maxLevel);
 
 	svgTree.size([width, height]);
 	var diagonal = d3.svg.diagonal();
@@ -105,8 +117,13 @@ function redraw(center, cached=false, source) {
 		d.y = d.depth * 50;
 	})
 
-	if(!source)
+	if (!source){
 		source = nodes[0];
+		oldSource = nodes[0];
+	}
+
+	console.log(source);
+	console.log(oldSource);
 
 	var nodeUpdate = svg.selectAll(".node").data(nodes, function(d) {
 		return d.node.uniqueId;
@@ -117,20 +134,15 @@ function redraw(center, cached=false, source) {
 	var enterNodes = nodeEnter.append("g")
 		.attr("class", "node")
 		.attr("transform", function(d) {
-			return "translate(" + source.x + "," + source.y + ")";
+			return "translate(" + oldSource.x + "," + oldSource.y + ")";
 		})
-		.attr("id", function(d){
+		.attr("id", function(d) {
 			return "node" + d.node.uniqueId;
 		})
 		.on({
 			"mouseover": handleMouseOverEvent,
 			"mouseout": handleMouseOutEvent,
-			"click": function(d){
-				if(d3.event.defaultPrevented)
-					return;
-				toggle(d);
-				redraw(currentCenter, true, d);
-			}
+			"click": handleClickEvent,
 		});
 
 	var dragBehavior = d3.behavior.drag()
@@ -141,7 +153,7 @@ function redraw(center, cached=false, source) {
 	enterNodes.append("circle")
 		.attr("r", 5)
 		.style("fill", function(d) {
-			if(d.isme)
+			if (d.isme)
 				return "red";
 			return (!d.children && d._children) ? "blue" : "#fff";
 		});
@@ -162,7 +174,7 @@ function redraw(center, cached=false, source) {
 		.select("circle")
 		.attr("r", 5)
 		.style("fill", function(d) {
-			if(d.isme)
+			if (d.isme)
 				return "red";
 			return (!d.children && d._children) ? "blue" : "#fff";
 		});
@@ -192,8 +204,8 @@ function redraw(center, cached=false, source) {
 	linkEnter.append("path")
 		.attr("class", "link")
 		.attr("d", d3.svg.diagonal()
-			.projection(function(d){
-					return [source.x, source.y];
+			.projection(function(d) {
+				return [source.x, source.y];
 			}))
 		.attr("id", function(d) {
 			return "link" + d.source.node.uniqueId + "-" + d.target.node.uniqueId;
@@ -205,8 +217,8 @@ function redraw(center, cached=false, source) {
 	linkExit.transition()
 		.duration(5000)
 		.attr("d", d3.svg.diagonal()
-			.projection(function(d){
-					return [source.x, source.y];
+			.projection(function(d) {
+				return [source.x, source.y];
 			}))
 		.remove();
 }
