@@ -8,3 +8,34 @@
 	top:10px;
 	white-space: pre;
 }
+
+#htmlshow .normaltext, .tagtext, .attrtext, .valuetext, .linenumbertext
+{
+	font-family: Consolas;
+	font-size: 16px;
+}
+
+#htmlshow .normaltext
+{
+	color: white;
+}
+
+#htmlshow .tagtext
+{
+	color: #FE2470;
+}
+
+#htmlshow .attrtext
+{
+	color: #B2D44A;
+}
+
+#htmlshow .valuetext
+{
+	color: #EBD67D;
+}
+
+#htmlshow .linenumbertext
+{
+	color: gray;
+}

@@ -10,27 +10,21 @@ var tree;
 htmlShow.setAttribute("readonly", true);
 
 function appendColoredText(parent,
-	text,
-	color = 'black',
-	family = 'Consolas',
-	size = '16px') {
+	text, className) {
 
 	var node = document.createElement("font");
 	node.innerText = text;
 
-	node.style.color = color;
-	node.style.fontFamily = family;
-	node.style.fontSize = size;
-
+	node.className = className;
 	parent.appendChild(node);
 }
 
 removeAllChildren(htmlShow);
-appendColoredText(htmlShow, "1 ", "grey");
+appendColoredText(htmlShow, "1 ", "linenumbertext");
 
 function handleUploadFile() {
 	removeAllChildren(htmlShow);
-	appendColoredText(htmlShow, "1 ", "grey");
+	appendColoredText(htmlShow, "1 ", "linenumbertext");
 	var file = uploadFileArea.files[0];
 	var htmlReader = new FileReader();
 
@@ -59,12 +53,12 @@ function handleUploadFile() {
 					let text = htmlReader.result.substring(startIndex, endIndex);
 					
 					if(isTag){
-						appendColoredText(htmlShow, "<", "white");
+						appendColoredText(htmlShow, "<", "normaltext");
 						let isEndTag = (text[1] === '/');
 						let isSelfClosingTag = (text[text.length - 2] === '/');
 
 						if(isEndTag)
-							appendColoredText(htmlShow, "/", "white");
+							appendColoredText(htmlShow, "/", "normaltext");
 
 						let attrStart = isEndTag ? 2 : 1;
 						let attrEnd = isSelfClosingTag ? text.length - 2 : text.length - 1;
@@ -77,28 +71,28 @@ function handleUploadFile() {
 						let matchedText = re.exec(subText);
 						while(matchedText){
 							let spaces = subText.substring(lastSpaceStart, matchedText.index);
-							appendColoredText(htmlShow, spaces, "white");
+							appendColoredText(htmlShow, spaces, "normaltext");
 							if(!tagNameAppeared){
-								appendColoredText(htmlShow, matchedText[0], "#FE2470");//red
+								appendColoredText(htmlShow, matchedText[0], "tagtext");//red
 								tagNameAppeared = true;
 							}
 							else{
 								if(matchedText[1])
-									appendColoredText(htmlShow, matchedText[1], "#B2D44A");//green
+									appendColoredText(htmlShow, matchedText[1], "attrtext");//green
 								if(matchedText[2])
-									appendColoredText(htmlShow, matchedText[2], "white");
+									appendColoredText(htmlShow, matchedText[2], "normaltext");
 								if(matchedText[3])
-									appendColoredText(htmlShow, matchedText[3], "#EBD67D");//yellow
+									appendColoredText(htmlShow, matchedText[3], "valuetext");//yellow
 							}
 							lastSpaceStart = matchedText.index + matchedText[0].length;
 							matchedText = re.exec(subText);							
 						}
 						let spaces = subText.substring(lastSpaceStart);
 						let finalChars = isSelfClosingTag ? spaces + "/>" : spaces + ">";
-						appendColoredText(htmlShow, finalChars, "white");
+						appendColoredText(htmlShow, finalChars, "normaltext");
 					}
 					else{
-						appendColoredText(htmlShow, text, "white");
+						appendColoredText(htmlShow, text, "normaltext");
 					}
 					startIndex = endIndex;
 				}
@@ -106,9 +100,9 @@ function handleUploadFile() {
 					lineNumber++;
 					let text = htmlReader.result.substring(startIndex, i);
 
-					appendColoredText(htmlShow, text, "white");
+					appendColoredText(htmlShow, text, "normaltext");
 					htmlShow.appendChild(document.createElement("br"));
-					appendColoredText(htmlShow, String(lineNumber) + " ", "grey");
+					appendColoredText(htmlShow, String(lineNumber) + " ", "linenumbertext");
 
 					startIndex = i + 1;
 				}
