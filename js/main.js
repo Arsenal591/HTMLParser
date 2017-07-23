@@ -110,22 +110,7 @@ function handleUploadFile() {
 		}
 	}
 
-	//TODO: syntax highlight
-	function displayFile() {
-		var results = htmlReader.result.split("\n");
-		var newResult = "";
-		var lineNumber = 0;
-		for (let x of results) {
-			lineNumber++;
-			newResult = newResult + lineNumber + "  " + x + "\n";
-		}
-		htmlShow.value = newResult;
-	}
-
-	htmlReader.addEventListener("load", function() {
-		//displayFile();
-		tokenize();
-	});
+	htmlReader.addEventListener("load", tokenize);
 	htmlReader.readAsText(file);
 }
 uploadFileArea.addEventListener("click", function() {
