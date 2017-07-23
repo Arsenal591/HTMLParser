@@ -56,9 +56,49 @@ function handleUploadFile() {
 					let isTag = (htmlReader.result[startIndex] === '<' && htmlReader.result[i] === '>');
 					let endIndex = isTag ? i + 1: i;
 					let text = htmlReader.result.substring(startIndex, endIndex);
-					console.log(text);
-					let color = isTag ? "green" : "white";
-					appendColoredText(htmlShow, text, color);
+					
+					if(isTag){
+						appendColoredText(htmlShow, "<", "white");
+						let isEndTag = (text[1] === '/');
+						let isSelfClosingTag = (text[text.length - 2] === '/');
+
+						if(isEndTag)
+							appendColoredText(htmlShow, "/", "white");
+
+						let attrStart = isEndTag ? 2 : 1;
+						let attrEnd = isSelfClosingTag ? text.length - 2 : text.length - 1;
+						let subText = text.substring(attrStart, attrEnd);
+
+						let lastSpaceStart = 0;
+						let tagNameAppeared = false;
+						let re = /([^\s\=]+)(?:(\s*=\s*)(\S+))?/g;
+
+						let matchedText = re.exec(subText);
+						while(matchedText){
+							let spaces = subText.substring(lastSpaceStart, matchedText.index);
+							appendColoredText(htmlShow, spaces, "white");
+							if(!tagNameAppeared){
+								appendColoredText(htmlShow, matchedText[0], "red");
+								tagNameAppeared = true;
+							}
+							else{
+								if(matchedText[1])
+									appendColoredText(htmlShow, matchedText[1], "green");
+								if(matchedText[2])
+									appendColoredText(htmlShow, matchedText[2], "white");
+								if(matchedText[3])
+									appendColoredText(htmlShow, matchedText[3], "yellow");
+							}
+							lastSpaceStart = matchedText.index + matchedText[0].length;
+							matchedText = re.exec(subText);							
+						}
+						let spaces = subText.substring(lastSpaceStart);
+						let finalChars = isSelfClosingTag ? spaces + "/>" : spaces + ">";
+						appendColoredText(htmlShow, finalChars, "white");
+					}
+					else{
+						appendColoredText(htmlShow, text, "white");
+					}
 					startIndex = endIndex;
 				}
 				else if (ch === '\n') {
