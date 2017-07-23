@@ -10,10 +10,10 @@ var tree;
 htmlShow.setAttribute("readonly", true);
 
 function appendColoredText(parent,
-						   text, 
-						   color='black', 
-						   family='Consolas', 
-						   size){
+	text,
+	color = 'black',
+	family = 'Consolas',
+	size = '16px') {
 
 	var node = document.createElement("font");
 	node.innerText = text;
@@ -25,7 +25,11 @@ function appendColoredText(parent,
 	parent.appendChild(node);
 }
 
+appendColoredText(htmlShow, "1 ", "grey");
+
 function handleUploadFile() {
+	removeAllChildren(htmlShow);
+	appendColoredText(htmlShow, "1 ", "grey");
 	var file = uploadFileArea.files[0];
 	var htmlReader = new FileReader();
 
@@ -33,9 +37,11 @@ function handleUploadFile() {
 		tree = new DOMTree();
 		var machine = new TokenizeMachine();
 		var lineNumber = 1;
-		for (let ch of htmlReader.result) {
-			if (ch === '\n')
-				lineNumber++;
+		var startIndex = 0;
+
+		for (let i = 0; i < htmlReader.result.length; i++) {
+			let ch = htmlReader.result[i];
+
 			try {
 				machine.transfer(ch);
 			} catch (errors) {
@@ -44,6 +50,26 @@ function handleUploadFile() {
 				for (let err of errors) {
 					err.lineNumber = lineNumber;
 					addErrorMessage(err);
+				}
+			} finally {
+				if (machine.emitted) {
+					let isTag = (htmlReader.result[startIndex] === '<' && htmlReader.result[i] === '>');
+					let endIndex = isTag ? i + 1: i;
+					let text = htmlReader.result.substring(startIndex, endIndex);
+					console.log(text);
+					let color = isTag ? "green" : "white";
+					appendColoredText(htmlShow, text, color);
+					startIndex = endIndex;
+				}
+				else if (ch === '\n') {
+					lineNumber++;
+					let text = htmlReader.result.substring(startIndex, i);
+
+					appendColoredText(htmlShow, text, "white");
+					htmlShow.appendChild(document.createElement("br"));
+					appendColoredText(htmlShow, String(lineNumber) + " ", "grey");
+
+					startIndex = i + 1;
 				}
 			}
 		}
@@ -62,7 +88,7 @@ function handleUploadFile() {
 	}
 
 	htmlReader.addEventListener("load", function() {
-		displayFile();
+		//displayFile();
 		tokenize();
 	});
 	htmlReader.readAsText(file);
@@ -96,9 +122,9 @@ function addErrorMessage(e) {
 	errorShow.appendChild(msgSpan);
 }
 
-function clearErrorMessage() {
-	while (errorShow.firstChild) {
-		errorShow.removeChild(errorShow.firstChild);
+function removeAllChildren(node) {
+	while (node.firstChild) {
+		node.removeChild(node.firstChild);
 	}
 }
 

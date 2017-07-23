@@ -58,7 +58,7 @@ var isSpace = x => /^[\s]$/.test(x);
 
 function emit(token) {
 	if (token !== null && (token.type !== 'str' || /^\s*$/.test(token.str) === false)){
-			tree.buildDOMTree(token);
+		tree.buildDOMTree(token);
 	}
 }
 
@@ -66,13 +66,13 @@ class TokenizeMachine {
 	constructor() {
 		this.state = DATA;
 		this.currentToken = null;
+		this.emitted = false;
 	}
 	transfer(ch) {
-		var emitted = false;
+		this.emitted = false;
 		switch (this.state) {
 			case DATA:
 				if (ch === '<') {
-					emitted = true;
 					try{
 						emit(this.currentToken);
 					}
@@ -82,6 +82,7 @@ class TokenizeMachine {
 					finally{
 						this.currentToken = null;
 						this.state = TAG_OPEN;
+						this.emitted = true;
 					}
 				} else {
 					if (this.currentToken === null)
@@ -118,7 +119,6 @@ class TokenizeMachine {
 				} else if (ch === '/') {
 					this.state = SELF_CLOSING_START_TAG;
 				} else if (ch === '>') {
-					emitted = true;
 					try{
 						emit(this.currentToken);
 					}
@@ -128,6 +128,7 @@ class TokenizeMachine {
 					finally{
 						this.currentToken = null;
 						this.state = DATA;
+						this.emitted = true;
 					}
 				} else if (isLetter) {
 					this.currentToken.appendTagName(ch)
@@ -142,9 +143,8 @@ class TokenizeMachine {
 				} else if (ch === '/') {
 					this.state = SELF_CLOSING_START_TAG;
 				} else if (ch === '>') {
-					emitted = true;
 					try{
-						emit(this.currentToken);
+						token = emit(this.currentToken);
 					}
 					catch(e){
 						throw e;
@@ -152,6 +152,7 @@ class TokenizeMachine {
 					finally{
 						this.currentToken = null;
 						this.state = DATA;
+						this.emitted = true;
 					}
 				} else if (isLetter(ch)) {
 					this.currentToken.appendAttr(ch);
@@ -171,7 +172,6 @@ class TokenizeMachine {
 				} else if (ch === '=') {
 					this.state = BEFORE_ATTR_VALUE;
 				} else if (ch === '>') {
-					emitted = true;
 					this.currentToken.insertAttr();
 					try{
 						emit(this.currentToken);
@@ -182,6 +182,7 @@ class TokenizeMachine {
 					finally{
 						this.currentToken = null;
 						this.state = DATA;
+						this.emitted = true;
 					}
 				} else if (ch === "'" || ch === '"' || ch === '<') {
 					throw new PraseError("In state 'ATTR_NAME', '\"', '\'', '<' are not allowed."
@@ -199,7 +200,6 @@ class TokenizeMachine {
 				} else if (ch === '=') {
 					this.state = BEFORE_ATTR_VALUE;
 				} else if (ch === '>') {
-					emitted = true;
 					this.currentToken.insertAttr();
 					try{
 						emit(this.currentToken);
@@ -210,6 +210,7 @@ class TokenizeMachine {
 					finally{
 						this.currentToken = null;
 						this.state = DATA;
+						this.emitted = true;
 					}
 				} else if (isLetter) {
 					this.currentToken.appendAttr(ch);
@@ -255,7 +256,6 @@ class TokenizeMachine {
 					this.currentToken.insertAttr();
 					this.state = BEFORE_ATTR_NAME;
 				} else if (ch === '>') {
-					emitted = true;
 					this.currentToken.insertAttr();
 					try{
 						emit(this.currentToken);
@@ -266,6 +266,7 @@ class TokenizeMachine {
 					finally{
 						this.currentToken = null;
 						this.state = DATA;
+						this.emitted = true;
 					}
 				} else if (ch === '"' || ch === "'" || ch === '<' || ch === '=') {
 					throw new PraseError("In state 'ATTR_VALUE_UNQUOTED', '\"', '\'', '<', '='\
@@ -280,7 +281,6 @@ class TokenizeMachine {
 				} else if (ch === '/') {
 					this.state = SELF_CLOSING_START_TAG;
 				} else if (ch === '>') {
-					emitted = true;
 					try{
 						emit(this.currentToken);
 					}
@@ -290,6 +290,7 @@ class TokenizeMachine {
 					finally{
 						this.currentToken = null;
 						this.state = DATA;
+						this.emitted = true;
 					}
 				} else {
 					throw new PraseError("In state 'AFTER_ATTR_VALUE_QUOTED', expecting a letter,\
@@ -298,7 +299,6 @@ class TokenizeMachine {
 				break;
 			case SELF_CLOSING_START_TAG:
 				if (ch === '>') {
-					emitted = true;
 					this.currentToken.selfClosing = true;
 					try{
 						emit(this.currentToken);
@@ -309,6 +309,7 @@ class TokenizeMachine {
 					finally{
 						this.currentToken = null;
 						this.state = DATA;
+						this.emitted = true;
 					}
 				} else {
 					throw new PraseError("In state 'SELF_CLOSING_START_TAG', expecting a '>'\
@@ -319,6 +320,5 @@ class TokenizeMachine {
 				// statements_def
 				break;
 		}
-		return emitted;
 	}
 }
