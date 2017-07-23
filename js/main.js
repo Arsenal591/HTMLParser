@@ -4,13 +4,29 @@ var errorShow = document.getElementById("errorshow");
 var codeArea = document.getElementById("codeedit");
 var runCodeButton = document.getElementById("runcode");
 var visualization = document.getElementById("visualize");
-var tree;
 
+//global varible: DOM Tree of the current *.html file.
+var tree;
 htmlShow.setAttribute("readonly", true);
+
+function appendColoredText(parent,
+						   text, 
+						   color='black', 
+						   family='Consolas', 
+						   size){
+
+	var node = document.createElement("font");
+	node.innerText = text;
+
+	node.style.color = color;
+	node.style.fontFamily = family;
+	node.style.fontSize = size;
+
+	parent.appendChild(node);
+}
 
 function handleUploadFile() {
 	var file = uploadFileArea.files[0];
-	//uploadFileArea.value = '';
 	var htmlReader = new FileReader();
 
 	function tokenize() {
@@ -33,6 +49,7 @@ function handleUploadFile() {
 		}
 	}
 
+	//TODO: syntax highlight
 	function displayFile() {
 		var results = htmlReader.result.split("\n");
 		var newResult = "";
@@ -56,10 +73,13 @@ uploadFileArea.addEventListener("click", function() {
 uploadFileArea.addEventListener("change", handleUploadFile, false);
 
 
+
+//TODO: add time stamp; add line number
 function addErrorMessage(e) {
+
 	var errorName = e.name;
 	var msg = e.message;
-	var msgTypeNode = document.createElement("em");
+	var msgTypeNode = document.createElement("font");
 	var msgTypeTextNode = document.createTextNode(errorName + ": ")
 	msgTypeNode.appendChild(msgTypeTextNode);
 	msgTypeNode.style.color = "yellow";
@@ -81,7 +101,6 @@ function clearErrorMessage() {
 		errorShow.removeChild(errorShow.firstChild);
 	}
 }
-
 
 function runCode() {
 	var src = codeArea.value;

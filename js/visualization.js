@@ -2,8 +2,10 @@ var svg = d3.select("#visualize").append("g").attr("transform", "translate(0,20)
 var svgTree = d3.layout.tree().separation(function(a, b) {
 	return (a.parent === b.parent ? 1 : 2);
 });
+var animationTime = 500;
 var currentCenter;
 var data;
+var nodes;
 
 var dragdx = 0, dragdy = 0;
 
@@ -104,6 +106,9 @@ function redraw(center, cached = false, source) {
 	var oldSource;
 	if(source)
 		oldSource = {x: source.x, y:source.y};
+	else if(nodes && nodes[0])
+		oldSource = {x: nodes[0].x, y:nodes[0].y};
+
 	var width = visualization.clientWidth;
 	var height = visualization.clientHeight;
 	var maxLevel = Math.floor(height / 50);
@@ -113,7 +118,7 @@ function redraw(center, cached = false, source) {
 	svgTree.size([width, height]);
 	var diagonal = d3.svg.diagonal();
 
-	var nodes = svgTree.nodes(data);
+	nodes = svgTree.nodes(data);
 	var links = svgTree.links(nodes);
 	nodes.forEach(function(d) {
 		d.y = d.depth * 50;
@@ -121,11 +126,10 @@ function redraw(center, cached = false, source) {
 
 	if (!source){
 		source = nodes[0];
+	}
+	if(!oldSource){
 		oldSource = nodes[0];
 	}
-
-	console.log(source);
-	console.log(oldSource);
 
 	var nodeUpdate = svg.selectAll(".node").data(nodes, function(d) {
 		return d.node.uniqueId;
@@ -168,7 +172,7 @@ function redraw(center, cached = false, source) {
 		});
 
 	var updateNodes = nodeUpdate.transition()
-		.duration(5000)
+		.duration(animationTime)
 		.attr("transform", function(d) {
 			return "translate(" + d.x + "," + d.y + ")";
 		});
@@ -190,7 +194,7 @@ function redraw(center, cached = false, source) {
 		});
 
 	var exitNodes = nodeExit.transition()
-		.duration(5000)
+		.duration(animationTime)
 		.attr("transform", function(d) {
 			return "translate(" + source.x + "," + source.y + ")";
 		})
@@ -214,10 +218,10 @@ function redraw(center, cached = false, source) {
 		});
 
 	linkUpdate.transition()
-		.duration(5000)
+		.duration(animationTime)
 		.attr("d", diagonal);
 	linkExit.transition()
-		.duration(5000)
+		.duration(animationTime)
 		.attr("d", d3.svg.diagonal()
 			.projection(function(d) {
 				return [source.x, source.y];

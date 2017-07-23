@@ -68,9 +68,11 @@ class TokenizeMachine {
 		this.currentToken = null;
 	}
 	transfer(ch) {
+		var emitted = false;
 		switch (this.state) {
 			case DATA:
 				if (ch === '<') {
+					emitted = true;
 					try{
 						emit(this.currentToken);
 					}
@@ -116,6 +118,7 @@ class TokenizeMachine {
 				} else if (ch === '/') {
 					this.state = SELF_CLOSING_START_TAG;
 				} else if (ch === '>') {
+					emitted = true;
 					try{
 						emit(this.currentToken);
 					}
@@ -139,6 +142,7 @@ class TokenizeMachine {
 				} else if (ch === '/') {
 					this.state = SELF_CLOSING_START_TAG;
 				} else if (ch === '>') {
+					emitted = true;
 					try{
 						emit(this.currentToken);
 					}
@@ -167,6 +171,7 @@ class TokenizeMachine {
 				} else if (ch === '=') {
 					this.state = BEFORE_ATTR_VALUE;
 				} else if (ch === '>') {
+					emitted = true;
 					this.currentToken.insertAttr();
 					try{
 						emit(this.currentToken);
@@ -194,6 +199,7 @@ class TokenizeMachine {
 				} else if (ch === '=') {
 					this.state = BEFORE_ATTR_VALUE;
 				} else if (ch === '>') {
+					emitted = true;
 					this.currentToken.insertAttr();
 					try{
 						emit(this.currentToken);
@@ -249,6 +255,7 @@ class TokenizeMachine {
 					this.currentToken.insertAttr();
 					this.state = BEFORE_ATTR_NAME;
 				} else if (ch === '>') {
+					emitted = true;
 					this.currentToken.insertAttr();
 					try{
 						emit(this.currentToken);
@@ -273,6 +280,7 @@ class TokenizeMachine {
 				} else if (ch === '/') {
 					this.state = SELF_CLOSING_START_TAG;
 				} else if (ch === '>') {
+					emitted = true;
 					try{
 						emit(this.currentToken);
 					}
@@ -290,6 +298,7 @@ class TokenizeMachine {
 				break;
 			case SELF_CLOSING_START_TAG:
 				if (ch === '>') {
+					emitted = true;
 					this.currentToken.selfClosing = true;
 					try{
 						emit(this.currentToken);
@@ -310,5 +319,6 @@ class TokenizeMachine {
 				// statements_def
 				break;
 		}
+		return emitted;
 	}
 }
