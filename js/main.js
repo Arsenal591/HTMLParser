@@ -79,16 +79,16 @@ function handleUploadFile() {
 							let spaces = subText.substring(lastSpaceStart, matchedText.index);
 							appendColoredText(htmlShow, spaces, "white");
 							if(!tagNameAppeared){
-								appendColoredText(htmlShow, matchedText[0], "red");
+								appendColoredText(htmlShow, matchedText[0], "#FE2470");//red
 								tagNameAppeared = true;
 							}
 							else{
 								if(matchedText[1])
-									appendColoredText(htmlShow, matchedText[1], "green");
+									appendColoredText(htmlShow, matchedText[1], "#B2D44A");//green
 								if(matchedText[2])
 									appendColoredText(htmlShow, matchedText[2], "white");
 								if(matchedText[3])
-									appendColoredText(htmlShow, matchedText[3], "yellow");
+									appendColoredText(htmlShow, matchedText[3], "#EBD67D");//yellow
 							}
 							lastSpaceStart = matchedText.index + matchedText[0].length;
 							matchedText = re.exec(subText);							
