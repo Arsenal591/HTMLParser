@@ -1,37 +1,10 @@
-#container
+#htmlshow, #codeedit, #visualize, #errorshow
 {
-	width: 90vw;
-	margin:60px auto 30px auto;
-	height:30vw;
-	position: relative;
-}
-#htmlshow, #codeedit, #visualize
-{
-	width:26vw;
-	margin:1.5vw;
-	height:20vw;
 	overflow: scroll;
 
 }
 #htmlshow{
 	background-color: black;
-	display: inline-block;
+	top:10px;
 	white-space: pre;
-}
-#codeedit, #visualize{
-	display: inline;
-}
-#runcode{
-	position: absolute;
-	left:37vw;
-	top:25vw;
-}
-#errorshow
-{
-	background-color: #cccccc;
-	overflow: auto;
-	margin:30px auto 30px auto;
-	width:70vw;
-	height:15vw;
-	position: relative;
 }

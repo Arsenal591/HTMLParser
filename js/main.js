@@ -25,6 +25,7 @@ function appendColoredText(parent,
 	parent.appendChild(node);
 }
 
+removeAllChildren(htmlShow);
 appendColoredText(htmlShow, "1 ", "grey");
 
 function handleUploadFile() {

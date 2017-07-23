@@ -1,0 +1,89 @@
+/* layer.css */
+
+.content-height {
+    height: 70vh;
+    min-height: 400px;
+}
+
+.panel-padding {
+    padding: 0;
+}
+
+.panel-margin-left {
+    margin-left: 4.166666667%;
+}
+
+.panel-height {
+    display: block;
+    position: relative;
+    top: 0;
+    height: calc(100% - 3em);
+}
+
+.file_area {
+    padding: 0;
+    margin-top: 1.5em;
+    display: block;
+    height: 100%;
+    overflow-y: scroll;
+}
+
+.file_area>li {
+    margin: 0;
+    padding-left: 1em;
+    display: block;
+    border-radius: 5px;
+    line-height: 2em;
+    cursor: pointer;
+}
+
+.file_area>li:hover {
+    background-color: #f5f5f5;
+}
+
+
+.file_area>li.selected {
+    color: white;
+    background-color: #428bca;
+}
+
+.file_area>li.selected:hover {
+    color: white;
+    background-color: #428bca;
+}
+
+.script_area {
+    margin: 0;
+    width: 100%;
+    height: calc(100% - 2.5em);
+}
+
+.script_button {
+    width: 30%;
+}
+
+.float-left {
+    float: left;
+}
+
+.float-right {
+    float: right;
+}
+
+.preview_area {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border: none;
+}
+
+.panel-margin-top {
+    margin-top: 4.1666666667vh;
+}
+
+.log_area {
+    width: 100%;
+    height: 10em;
+    border: none;
+    margin: 0;
+}

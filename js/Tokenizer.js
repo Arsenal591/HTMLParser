@@ -164,7 +164,6 @@ class TokenizeMachine {
 				break;
 			case ATTR_NAME:
 				if (isSpace(ch)) {
-					this.currentToken.insertAttr();
 					this.state = AFTER_ATTR_NAME;
 				} else if (ch === '/') {
 					this.currentToken.insertAttr();
@@ -213,6 +212,7 @@ class TokenizeMachine {
 						this.emitted = true;
 					}
 				} else if (isLetter) {
+					this.currentToken.insertAttr();
 					this.currentToken.appendAttr(ch);
 					this.state = ATTR_NAME;
 				} else {
