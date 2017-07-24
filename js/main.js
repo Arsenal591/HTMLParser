@@ -16,7 +16,7 @@ function appendColoredText(parent,
 
 	text = text.replace(/[\n\r]/, "");
 	var node = document.createElement("font");
-	node.innerText = text;
+	node.innerHTML = text;
 
 	node.className = className;
 	parent.appendChild(node);
@@ -150,10 +150,16 @@ function removeAllChildren(node) {
 
 function runCode() {
 	var src = codeArea.value;
+	if(/^\s*$/.test(src))
+		return;
 	try {
 		var result = eval(src);
 		if (result instanceof DOMNode) {
 			redraw(result);
+		}
+		else{
+			redraw(currentCenter);
+			addOutputMessage(result);
 		}
 	} catch (e) {
 		addErrorMessage(e);
@@ -207,7 +213,37 @@ function addDetailMessage(node) {
 	}
 }
 
+function describeAsString(obj){
+	var result = typeof(obj);
+	if(obj === null)
+		return "null";
+	if(obj === undefined)
+		return "undefined";
+	return "(" + (typeof obj) + ")" + (obj.toString());
+}
 
+function describeObject(obj){
+	if(typeof obj !== "object")
+		return describeAsString(obj);
+	else{
+		var result = "object" + "<br>";
+		for(let attr in obj){
+			let value = obj[attr];
+			result += '----' + attr + " : " + describeAsString(value) + "<br>";
+		}
+		return result;
+	}
+}
+
+function addOutputMessage(obj){
+	var result = describeObject(obj);
+	var timeString = new Date().toLocaleTimeString();
+	appendColoredText(detailShow, timeString + "  ", "timestamptext");
+	
+	appendColoredText(detailShow, result, "normaltext");
+	
+	detailShow.appendChild(document.createElement("br"));
+}
 
 window.addEventListener("resize", function() {
 	redraw(currentCenter, true);

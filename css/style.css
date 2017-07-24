@@ -1,4 +1,4 @@
-#htmlshow, #codeedit, #visualize, #errorshow
+#htmlshow, #codeedit, #visualize, #errorshow, #detailshow
 {
 	overflow: scroll;
 
@@ -46,27 +46,33 @@
 	font-size: 14px;
 }
 
-.normaltext
-{
-	color: black;
-}
-
-.fataltext
+#errorshow .fataltext
 {
 	color:#DC0000;
 	font-weight: bold;
 }
 
-.warningtext
+#errorshow .warningtext
 {
 	color: #70623F;
 	font-weight: bold;
 }
-
-.timestamptext
+#errorshow .timestamptext
 {
 	color: gray;
 }
+
+#detailshow .normaltext, .timestamptext{
+	font-family: Consolas;
+	font-size: 14px;
+}
+
+#detailshow .timestamptext
+{
+	color: gray;
+}
+
+
 
 .d3-context-menu {
 	position: absolute;
