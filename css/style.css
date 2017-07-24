@@ -39,3 +39,31 @@
 {
 	color: gray;
 }
+
+#errorshow .normaltext, .fataltext, .warningtext, .timestamptext
+{
+	font-family: Consolas;
+	font-size: 14px;
+}
+
+.normaltext
+{
+	color: black;
+}
+
+.fataltext
+{
+	color:#DC0000;
+	font-weight: bold;
+}
+
+.warningtext
+{
+	color: #70623F;
+	font-weight: bold;
+}
+
+.timestamptext
+{
+	color: gray;
+}

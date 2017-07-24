@@ -139,6 +139,11 @@ class DOMNode {
 			return undefined;
 		}
 	}
+	getSiblingSum() {
+		if(!this.parent)
+			return 0;
+		return this.parent.children.length - 1;
+	}
 	isChildOf(node) {
 		return node ? this.parent === node : false;
 	}

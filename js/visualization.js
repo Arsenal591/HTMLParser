@@ -35,7 +35,6 @@ function getTreeNodesRecursively(root, level, current, ori) {
 
 function getTreeNodes(center, level) {
 	var hasParent = Boolean(center.parent);
-	//var root = center;
 	var root = hasParent ? center.parent : center;
 	var res = getTreeNodesRecursively(root, level, 0, center);
 	return res;
@@ -80,8 +79,10 @@ function handleDragEvent(d) {
 }
 
 function handleDragEndEvent(d) {
-	if(dragdx > 10 || dragdy > 10)
-		redraw(currentCenter, true);
+	if(dragdx**2 + dragdy**2 >= 100){
+		if(d !== nodes[0])
+			redraw(currentCenter, true);
+	}
 	dragdx = 0;
 	dragdy = 0;
 }
@@ -111,7 +112,7 @@ function redraw(center, cached = false, source) {
 
 	var width = visualization.clientWidth;
 	var height = visualization.clientHeight;
-	var maxLevel = Math.floor(height / 50);
+	var maxLevel = Math.floor(height / 50) - 1;
 
 	data = cached ? data : getTreeNodes(center, maxLevel);
 
@@ -164,11 +165,11 @@ function redraw(center, cached = false, source) {
 			return (!d.children && d._children) ? "blue" : "#fff";
 		});
 	enterNodes.append("text")
-		.attr("text-anchor", function(d) {
-			return d.children ? "end" : "start"
-		})
 		.text(function(d) {
 			return d.node.type === "element" ? d.node.tagName : d.node.type;
+		})
+		.attr("transform", function(d){
+			return "translate(" + 5 + "," + 0 + ")";
 		});
 
 	var updateNodes = nodeUpdate.transition()
@@ -183,14 +184,6 @@ function redraw(center, cached = false, source) {
 			if (d.isme)
 				return "red";
 			return (!d.children && d._children) ? "blue" : "#fff";
-		});
-	updateNodes
-		.select("text")
-		.attr("text-anchor", function(d) {
-			return d.children ? "end" : "start"
-		})
-		.text(function(d) {
-			return d.node.type === "element" ? d.node.tagName : d.node.type;
 		});
 
 	var exitNodes = nodeExit.transition()
@@ -228,3 +221,5 @@ function redraw(center, cached = false, source) {
 			}))
 		.remove();
 }
+
+//function redraw

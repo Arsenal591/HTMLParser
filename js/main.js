@@ -3,6 +3,7 @@ var htmlShow = document.getElementById("htmlshow");
 var errorShow = document.getElementById("errorshow");
 var codeArea = document.getElementById("codeedit");
 var runCodeButton = document.getElementById("runcode");
+var clearCodeButton = document.getElementById("clearcode");
 var visualization = document.getElementById("visualize");
 
 //global varible: DOM Tree of the current *.html file.
@@ -108,6 +109,8 @@ function handleUploadFile() {
 				}
 			}
 		}
+
+		redraw(tree.root);
 	}
 
 	htmlReader.addEventListener("load", tokenize);
@@ -122,24 +125,22 @@ uploadFileArea.addEventListener("change", handleUploadFile, false);
 
 //TODO: add time stamp; add line number
 function addErrorMessage(e) {
-
 	var errorName = e.name;
 	var msg = e.message;
-	var msgTypeNode = document.createElement("font");
-	var msgTypeTextNode = document.createTextNode(errorName + ": ")
-	msgTypeNode.appendChild(msgTypeTextNode);
-	msgTypeNode.style.color = "yellow";
-	var msgTextNode = document.createTextNode(msg);
+	var isWarning = (e.level === "warning");
+	var timeString = new Date().toLocaleTimeString();
 
-	var msgSpan = document.createElement("span");
+	appendColoredText(errorShow, timeString + "    ", "timestamptext");
 
-	msgSpan.appendChild(msgTypeNode);
-	msgSpan.appendChild(msgTextNode);
-	msgSpan.appendChild(document.createElement("br"));
+	var errorStyle = isWarning? "warningtext" : "fataltext";
+	appendColoredText(errorShow, errorName + ": ", errorStyle);
 
-	console.log(e.lineNumber);
+	appendColoredText(errorShow, msg, "normaltext");
 
-	errorShow.appendChild(msgSpan);
+	if(e.lineNumber)
+		appendColoredText(errorShow, "    at line " + e.lineNumber, "normaltext");
+
+	errorShow.appendChild(document.createElement("br"));
 }
 
 function removeAllChildren(node) {
@@ -152,7 +153,9 @@ function runCode() {
 	var src = codeArea.value;
 	try {
 		var result = eval(src);
-		console.log(result);
+		if(result instanceof DOMNode){
+			redraw(result);
+		}
 	} catch (e) {
 		addErrorMessage(e);
 	} finally {
@@ -160,3 +163,11 @@ function runCode() {
 	}
 }
 runCodeButton.addEventListener("click", runCode);
+
+function clearCode(){
+	codeArea.value = '';
+}
+clearCodeButton.addEventListener("click", clearCode);
+
+
+window.addEventListener("resize", function(){redraw(currentCenter, true);}, false)
