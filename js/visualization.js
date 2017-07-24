@@ -104,15 +104,12 @@ function handleClickEvent(d) {
 	redraw(currentCenter, true, d);
 }
 
-d3.contextMenu = function (menu, openCallback) {
-
-	// create the div element that will hold the context menu
+contextMenu = function (menu, openCallback) {
 	d3.selectAll('.d3-context-menu').data([1])
 		.enter()
 		.append('div')
 		.attr('class', 'd3-context-menu');
 
-	// close menu
 	d3.select('body').on('click.d3-context-menu', function() {
 		d3.select('.d3-context-menu').style('display', 'none');
 	});
@@ -138,10 +135,9 @@ d3.contextMenu = function (menu, openCallback) {
 			}
 		}
 
-		// display context menu
 		d3.select('.d3-context-menu')
-			.style('left', (d3.event.x - 2) + 'px')
-			.style('top', (d3.event.y - 2) + 'px')
+			.style('left', (d3.event.pageX - 2) + 'px')
+			.style('top', (d3.event.pageY - 2) + 'px')
 			.style('display', 'block');
 
 		d3.event.preventDefault();
@@ -155,7 +151,14 @@ var menu = [
 		action: function(elem, d, i){
 			d.node.extract();
 			redraw(currentCenter);
-		}
+		},
+	},
+	{
+		title: 'Visualize the node.',
+		action: function(elem, d, i){
+			redraw(d.node);
+		},
+
 	}
 ]
 
@@ -209,7 +212,7 @@ function redraw(center, cached = false, source) {
 			"mouseover": handleMouseOverEvent,
 			"mouseout": handleMouseOutEvent,
 			"click": handleClickEvent,
-			"contextmenu": d3.contextMenu(menu),
+			"contextmenu": contextMenu(menu),
 		});
 
 	var dragBehavior = d3.behavior.drag()
