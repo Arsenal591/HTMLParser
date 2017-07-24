@@ -119,8 +119,8 @@ function handleUploadFile() {
 uploadFileArea.addEventListener("click", function() {
 	uploadFileArea.value = '';
 }, false);
-uploadFileArea.addEventListener("change", handleUploadFile, false);
-
+uploadFileArea.addEventListener("change", handleUploadFile, false); 
+ 
 
 
 function addErrorMessage(e) {
