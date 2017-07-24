@@ -339,7 +339,35 @@ class DOMNode {
 			return this.text;
 		}
 	}
+	toXML() {
+		if(this.type === "text")
+			return this.text;
+		else if(this.type === "element"){
+			let preWrapper = '<' + this.tagName;
+			let endWrapper = '</' + this.tagName + '>';
+			for(let attrName in this.attr){
+				let value = this.attr[attrName];
+				let isDoubled = value.indexOf('"') > -1;
+				preWrapper += (" " + attrName + "=");
+				if(isDoubled)
+					preWrapper += ('"' + value + '"');
+				else
+					preWrapper += ('"' + value + '"');
+			}
+			if(isSelfClosingElement(this.tagName)){
+				preWrapper += '/';
+				endWrapper = '';
+			}
+			preWrapper += '>';
 
+			var result = preWrapper;
+			for(let child of this.children){
+				result += child.toXML();
+			}
+			result += endWrapper;
+			return result;
+		}
+	}
 	hasAttribute(k) {
 		k = k.toLowerCase();
 		return Boolean(this.attr[k]);
