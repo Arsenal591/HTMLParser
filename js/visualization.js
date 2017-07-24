@@ -88,10 +88,12 @@ function handleDragEndEvent(d) {
 }
 
 function handleMouseOverEvent(d) {
+	addDetailMessage(d.node);
 	d3.select(this).style("cursor", "pointer");
 }
 
 function handleMouseOutEvent(d) {
+	removeAllChildren(detailShow);
 	d3.select(this).style("cursor", "default");
 }
 
@@ -158,6 +160,8 @@ var menu = [
 ]
 
 function redraw(center, cached = false, source) {
+	if(!center)
+		return;
 	currentCenter = center;
 	var oldSource;
 	if(source)

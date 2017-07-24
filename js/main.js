@@ -5,6 +5,7 @@ var codeArea = document.getElementById("codeedit");
 var runCodeButton = document.getElementById("runcode");
 var clearCodeButton = document.getElementById("clearcode");
 var visualization = document.getElementById("visualize");
+var detailShow = document.getElementById("detailshow");
 
 //global varible: DOM Tree of the current *.html file.
 var tree;
@@ -50,15 +51,15 @@ function handleUploadFile() {
 			} finally {
 				if (machine.emitted) {
 					let isTag = (htmlReader.result[startIndex] === '<' && htmlReader.result[i] === '>');
-					let endIndex = isTag ? i + 1: i;
+					let endIndex = isTag ? i + 1 : i;
 					let text = htmlReader.result.substring(startIndex, endIndex);
-					
-					if(isTag){
+
+					if (isTag) {
 						appendColoredText(htmlShow, "<", "normaltext");
 						let isEndTag = (text[1] === '/');
 						let isSelfClosingTag = (text[text.length - 2] === '/');
 
-						if(isEndTag)
+						if (isEndTag)
 							appendColoredText(htmlShow, "/", "normaltext");
 
 						let attrStart = isEndTag ? 2 : 1;
@@ -70,34 +71,31 @@ function handleUploadFile() {
 						let re = /([^\s\=]+)(?:(\s*=\s*)(\S+))?/g;
 
 						let matchedText = re.exec(subText);
-						while(matchedText){
+						while (matchedText) {
 							let spaces = subText.substring(lastSpaceStart, matchedText.index);
 							appendColoredText(htmlShow, spaces, "normaltext");
-							if(!tagNameAppeared){
-								appendColoredText(htmlShow, matchedText[0], "tagtext");//red
+							if (!tagNameAppeared) {
+								appendColoredText(htmlShow, matchedText[0], "tagtext"); //red
 								tagNameAppeared = true;
-							}
-							else{
-								if(matchedText[1])
-									appendColoredText(htmlShow, matchedText[1], "attrtext");//green
-								if(matchedText[2])
+							} else {
+								if (matchedText[1])
+									appendColoredText(htmlShow, matchedText[1], "attrtext"); //green
+								if (matchedText[2])
 									appendColoredText(htmlShow, matchedText[2], "normaltext");
-								if(matchedText[3])
-									appendColoredText(htmlShow, matchedText[3], "valuetext");//yellow
+								if (matchedText[3])
+									appendColoredText(htmlShow, matchedText[3], "valuetext"); //yellow
 							}
 							lastSpaceStart = matchedText.index + matchedText[0].length;
-							matchedText = re.exec(subText);							
+							matchedText = re.exec(subText);
 						}
 						let spaces = subText.substring(lastSpaceStart);
 						let finalChars = isSelfClosingTag ? spaces + "/>" : spaces + ">";
 						appendColoredText(htmlShow, finalChars, "normaltext");
-					}
-					else{
+					} else {
 						appendColoredText(htmlShow, text, "normaltext");
 					}
 					startIndex = endIndex;
-				}
-				else if (ch === '\n') {
+				} else if (ch === '\n') {
 					lineNumber++;
 					let text = htmlReader.result.substring(startIndex, i);
 
@@ -123,7 +121,6 @@ uploadFileArea.addEventListener("change", handleUploadFile, false);
 
 
 
-//TODO: add time stamp; add line number
 function addErrorMessage(e) {
 	var errorName = e.name;
 	var msg = e.message;
@@ -132,12 +129,12 @@ function addErrorMessage(e) {
 
 	appendColoredText(errorShow, timeString + "    ", "timestamptext");
 
-	var errorStyle = isWarning? "warningtext" : "fataltext";
+	var errorStyle = isWarning ? "warningtext" : "fataltext";
 	appendColoredText(errorShow, errorName + ": ", errorStyle);
 
 	appendColoredText(errorShow, msg, "normaltext");
 
-	if(e.lineNumber)
+	if (e.lineNumber)
 		appendColoredText(errorShow, "    at line " + e.lineNumber, "normaltext");
 
 	errorShow.appendChild(document.createElement("br"));
@@ -153,7 +150,7 @@ function runCode() {
 	var src = codeArea.value;
 	try {
 		var result = eval(src);
-		if(result instanceof DOMNode){
+		if (result instanceof DOMNode) {
 			redraw(result);
 		}
 	} catch (e) {
@@ -164,10 +161,52 @@ function runCode() {
 }
 runCodeButton.addEventListener("click", runCode);
 
-function clearCode(){
+function clearCode() {
 	codeArea.value = '';
 }
 clearCodeButton.addEventListener("click", clearCode);
 
+function addDetailMessage(node) {
+	removeAllChildren(detailShow);
 
-window.addEventListener("resize", function(){redraw(currentCenter, true);}, false)
+	appendColoredText(detailShow, "Type : " + node.type, "normaltext");
+	detailShow.appendChild(document.createElement("br"));
+
+	if (node.type === "text") {
+		appendColoredText(detailShow, "Text : " + node.text, "normaltext");
+	} else {
+		appendColoredText(detailShow, 
+						"Tag name : " + (node.tagName.length ? node.tagName : "None")
+						, "normaltext");
+		detailShow.appendChild(document.createElement("br"));
+
+		appendColoredText(detailShow, "Id : " + (node.id || "None"), "normaltext");
+		detailShow.appendChild(document.createElement("br"));
+
+		appendColoredText(detailShow, "Class : ", "normaltext");
+		var classString = "None";
+		if (node.classes.length > 0)
+			classString = node.classes.join(", ");
+		appendColoredText(detailShow, classString, "normaltext");
+		detailShow.appendChild(document.createElement("br"));
+
+		appendColoredText(detailShow, "Attributes : ", "normaltext");
+		if(Object.getOwnPropertyNames(node.attr).length > 0){
+			detailShow.appendChild(document.createElement("br"));
+			for(let attrName in node.attr){
+				let value = node.attr[attrName];
+				appendColoredText(detailShow, "----" + attrName + " : " + value, "normaltext");
+				detailShow.appendChild(document.createElement("br"));
+			}
+		}
+		else{
+			appendColoredText(detailShow, "None", "normaltext");
+		}
+	}
+}
+
+
+
+window.addEventListener("resize", function() {
+	redraw(currentCenter, true);
+}, false)
