@@ -14,6 +14,7 @@ htmlShow.setAttribute("readonly", true);
 function appendColoredText(parent,
 	text, className) {
 
+	text = text.replace(/[\n\r]/, "");
 	var node = document.createElement("font");
 	node.innerText = text;
 
@@ -99,9 +100,10 @@ function handleUploadFile() {
 					lineNumber++;
 					let text = htmlReader.result.substring(startIndex, i);
 
-					appendColoredText(htmlShow, text, "normaltext");
 					htmlShow.appendChild(document.createElement("br"));
 					appendColoredText(htmlShow, String(lineNumber) + " ", "linenumbertext");
+
+					appendColoredText(htmlShow, text, "normaltext");
 
 					startIndex = i + 1;
 				}
