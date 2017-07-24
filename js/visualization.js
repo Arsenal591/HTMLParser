@@ -102,6 +102,61 @@ function handleClickEvent(d) {
 	redraw(currentCenter, true, d);
 }
 
+d3.contextMenu = function (menu, openCallback) {
+
+	// create the div element that will hold the context menu
+	d3.selectAll('.d3-context-menu').data([1])
+		.enter()
+		.append('div')
+		.attr('class', 'd3-context-menu');
+
+	// close menu
+	d3.select('body').on('click.d3-context-menu', function() {
+		d3.select('.d3-context-menu').style('display', 'none');
+	});
+
+	return function(data, index) {
+		var elm = this;
+
+		d3.selectAll('.d3-context-menu').html('');
+		var list = d3.selectAll('.d3-context-menu').append('ul');
+		list.selectAll('li').data(menu).enter()
+			.append('li')
+			.html(function(d) {
+				return (typeof d.title === 'string') ? d.title : d.title(data);
+			})
+			.on('click', function(d, i) {
+				d.action(elm, data, index);
+				d3.select('.d3-context-menu').style('display', 'none');
+			});
+
+		if (openCallback) {
+			if (openCallback(data, index) === false) {
+				return;
+			}
+		}
+
+		// display context menu
+		d3.select('.d3-context-menu')
+			.style('left', (d3.event.x - 2) + 'px')
+			.style('top', (d3.event.y - 2) + 'px')
+			.style('display', 'block');
+
+		d3.event.preventDefault();
+		d3.event.stopPropagation();
+	};
+};
+
+var menu = [
+	{
+		title: 'Remove the node.',
+		action: function(elem, d, i){
+			d.node.extract();
+			redraw(currentCenter);
+		}
+	}
+]
+
 function redraw(center, cached = false, source) {
 	currentCenter = center;
 	var oldSource;
@@ -150,6 +205,7 @@ function redraw(center, cached = false, source) {
 			"mouseover": handleMouseOverEvent,
 			"mouseout": handleMouseOutEvent,
 			"click": handleClickEvent,
+			"contextmenu": d3.contextMenu(menu),
 		});
 
 	var dragBehavior = d3.behavior.drag()
@@ -179,7 +235,7 @@ function redraw(center, cached = false, source) {
 		});
 	updateNodes
 		.select("circle")
-		.attr("r", 5)
+		.attr("r", 8)
 		.style("fill", function(d) {
 			if (d.isme)
 				return "red";
