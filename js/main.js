@@ -11,12 +11,11 @@ var detailShow = document.getElementById("detailshow");
 var tree;
 htmlShow.setAttribute("readonly", true);
 
-function appendColoredText(parent,
-	text, className) {
+function appendColoredText(parent, text, className) {
 
 	text = text.replace(/[\n\r]/, "");
 	var node = document.createElement("font");
-	node.innerHTML = text;
+	node.innerText = text;
 
 	node.className = className;
 	parent.appendChild(node);
@@ -224,13 +223,14 @@ function describeAsString(obj){
 
 function describeObject(obj){
 	if(typeof obj !== "object")
-		return describeAsString(obj);
+		return [describeAsString(obj)];
 	else{
-		var result = "object" + "<br>";
+		var result = ["object: " + obj.constructor.name];
 		for(let attr in obj){
 			let value = obj[attr];
-			result += '----' + attr + " : " + describeAsString(value) + "<br>";
+			result.push('----' + attr + " : " + describeAsString(value));
 		}
+		console.log(result);
 		return result;
 	}
 }
@@ -240,9 +240,10 @@ function addOutputMessage(obj){
 	var timeString = new Date().toLocaleTimeString();
 	appendColoredText(detailShow, timeString + "  ", "timestamptext");
 	
-	appendColoredText(detailShow, result, "normaltext");
-	
-	detailShow.appendChild(document.createElement("br"));
+	for(let line of result){
+		appendColoredText(detailShow, line, "normaltext");
+		detailShow.appendChild(document.createElement("br"));
+	}
 }
 
 window.addEventListener("resize", function() {
