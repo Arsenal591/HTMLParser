@@ -164,6 +164,8 @@ var menu = [
 
 function redraw(center, cached = false, source) {
 	if(!center)
+		center = currentCenter;
+	if(!center)
 		return;
 	currentCenter = center;
 	var oldSource;

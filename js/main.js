@@ -9,46 +9,51 @@ var detailShow = document.getElementById("detailshow");
 
 //global varible: DOM Tree of the current *.html file.
 var tree;
-htmlShow.setAttribute("readonly", true);
 
+//The color of text is specified by its className.
 function appendColoredText(parent, text, className) {
 
 	text = text.replace(/[\n\r]/, "");
 	var node = document.createElement("font");
 	node.innerText = text;
 
-	node.className = className;
+	node.className += (" " + className);
 	parent.appendChild(node);
 }
 
-removeAllChildren(htmlShow);
-appendColoredText(htmlShow, "1 ", "linenumbertext");
-
-function handleUploadFile() {
+function initializeHtmlShowArea(){
 	removeAllChildren(htmlShow);
 	appendColoredText(htmlShow, "1 ", "linenumbertext");
+}
+
+initializeHtmlShowArea();
+
+function handleUploadFile() {
+	initializeHtmlShowArea();
 	var file = uploadFileArea.files[0];
 	var htmlReader = new FileReader();
 
+	//Tokenize the input *.html file, its result can be used for building a DOM tree, 
+	//                                               and supporting syntax highlighting 
 	function tokenize() {
 		tree = new DOMTree();
 		var machine = new TokenizeMachine();
 		var lineNumber = 1;
-		var startIndex = 0;
+		var startIndex = 0;//上一个token发出时的字符index，用于定位当前应当显示的字符串。
 
 		for (let i = 0; i < htmlReader.result.length; i++) {
 			let ch = htmlReader.result[i];
 
 			try {
 				machine.transfer(ch);
-			} catch (errors) {
+			} catch (errors) { // if there is any error, show it(them) in the box.
 				if (!(errors instanceof Array))
 					errors = [errors];
 				for (let err of errors) {
 					err.lineNumber = lineNumber;
 					addErrorMessage(err);
 				}
-			} finally {
+			} finally { // display current string, using RegExp to determine each part's color.
 				if (machine.emitted) {
 					let isTag = (htmlReader.result[startIndex] === '<' && htmlReader.result[i] === '>');
 					let endIndex = isTag ? i + 1 : i;
@@ -62,6 +67,7 @@ function handleUploadFile() {
 						if (isEndTag)
 							appendColoredText(htmlShow, "/", "normaltext");
 
+						// locate the sub-string that represents name and attributes of the tag. 
 						let attrStart = isEndTag ? 2 : 1;
 						let attrEnd = isSelfClosingTag ? text.length - 2 : text.length - 1;
 						let subText = text.substring(attrStart, attrEnd);
@@ -72,17 +78,19 @@ function handleUploadFile() {
 
 						let matchedText = re.exec(subText);
 						while (matchedText) {
+							// correctly display the spaces.
 							let spaces = subText.substring(lastSpaceStart, matchedText.index);
 							appendColoredText(htmlShow, spaces, "normaltext");
+
 							if (!tagNameAppeared) {
 								appendColoredText(htmlShow, matchedText[0], "tagtext"); //red
 								tagNameAppeared = true;
 							} else {
-								if (matchedText[1])
+								if (matchedText[1]) // attribute name part
 									appendColoredText(htmlShow, matchedText[1], "attrtext"); //green
-								if (matchedText[2])
+								if (matchedText[2]) // equal sign part(may be inexistent)
 									appendColoredText(htmlShow, matchedText[2], "normaltext");
-								if (matchedText[3])
+								if (matchedText[3])// attribute value part(may be inexistent)
 									appendColoredText(htmlShow, matchedText[3], "valuetext"); //yellow
 							}
 							lastSpaceStart = matchedText.index + matchedText[0].length;
@@ -121,7 +129,6 @@ uploadFileArea.addEventListener("click", function() {
 uploadFileArea.addEventListener("change", handleUploadFile, false); 
  
 
-
 function addErrorMessage(e) {
 	var errorName = e.name;
 	var msg = e.message;
@@ -157,7 +164,7 @@ function runCode() {
 			redraw(result);
 		}
 		else{
-			redraw(currentCenter);
+			redraw();
 			addOutputMessage(result);
 		}
 	} catch (e) {
@@ -173,6 +180,7 @@ function clearCode() {
 }
 clearCodeButton.addEventListener("click", clearCode);
 
+//show details of a DOMNode
 function addDetailMessage(node) {
 	removeAllChildren(detailShow);
 
@@ -235,6 +243,7 @@ function describeObject(obj){
 	}
 }
 
+//display information about an object
 function addOutputMessage(obj){
 	var result = describeObject(obj);
 	var timeString = new Date().toLocaleTimeString();
