@@ -7,7 +7,8 @@ var currentCenter;
 var data;
 var nodes;
 
-var dragdx = 0, dragdy = 0;
+var dragdx = 0,
+	dragdy = 0;
 
 function getTreeNodesRecursively(root, level, current, ori) {
 	if (current === level) {
@@ -79,8 +80,8 @@ function handleDragEvent(d) {
 }
 
 function handleDragEndEvent(d) {
-	if(dragdx**2 + dragdy**2 >= 100){
-		if(d !== nodes[0])
+	if (dragdx ** 2 + dragdy ** 2 >= 100) {
+		if (d !== nodes[0])
 			redraw(currentCenter, true);
 	}
 	dragdx = 0;
@@ -104,7 +105,25 @@ function handleClickEvent(d) {
 	redraw(currentCenter, true, d);
 }
 
-contextMenu = function (menu, openCallback) {
+function markNodesOfSameType(d) {
+	if (d.node.type === "text") {
+		for (let node of nodes) {
+			if (node.node.type === "text")
+				node.fillStyle = "orange";
+			else
+				node.fillStyle = undefined;
+		}
+	} else {
+		for (let node of nodes) {
+			if (node.node.tagName === d.node.tagName)
+				node.fillStyle = "orange";
+			else
+				node.fillStyle = undefined;
+		}
+	}
+}
+
+contextMenu = function(menu, openCallback) {
 	d3.selectAll('.d3-context-menu').data([1])
 		.enter()
 		.append('div')
@@ -145,34 +164,43 @@ contextMenu = function (menu, openCallback) {
 	};
 };
 
-var menu = [
-	{
-		title: 'Remove the node.',
-		action: function(elem, d, i){
-			d.node.extract();
-			redraw(currentCenter);
-		},
+var menu = [{
+	title: 'Remove the node.',
+	action: function(elem, d, i) {
+		d.node.extract();
+		redraw(currentCenter);
 	},
-	{
-		title: 'Visualize the node.',
-		action: function(elem, d, i){
-			redraw(d.node);
-		},
+}, {
+	title: 'Visualize the node.',
+	action: function(elem, d, i) {
+		redraw(d.node);
+	},
 
+}, {
+	title: 'Mark nodes of the same type.',
+	action: function(elem, d, i) {
+		markNodesOfSameType(d);
+		redraw(currentCenter, true);
 	}
-]
+}]
 
 function redraw(center, cached = false, source) {
-	if(!center)
+	if (!center)
 		center = currentCenter;
-	if(!center)
+	if (!center)
 		return;
 	currentCenter = center;
 	var oldSource;
-	if(source)
-		oldSource = {x: source.x, y:source.y};
-	else if(nodes && nodes[0])
-		oldSource = {x: nodes[0].x, y:nodes[0].y};
+	if (source)
+		oldSource = {
+			x: source.x,
+			y: source.y
+		};
+	else if (nodes && nodes[0])
+		oldSource = {
+			x: nodes[0].x,
+			y: nodes[0].y
+		};
 
 	var width = visualization.clientWidth;
 	var height = visualization.clientHeight;
@@ -189,10 +217,10 @@ function redraw(center, cached = false, source) {
 		d.y = d.depth * 50;
 	})
 
-	if (!source){
+	if (!source) {
 		source = nodes[0];
 	}
-	if(!oldSource){
+	if (!oldSource) {
 		oldSource = nodes[0];
 	}
 
@@ -227,13 +255,15 @@ function redraw(center, cached = false, source) {
 		.style("fill", function(d) {
 			if (d.isme)
 				return "red";
-			return (!d.children && d._children) ? "blue" : "#fff";
+			if (d.fillStyle)
+				return d.fillStyle;
+			return (!d.children && d._children) ? "steelblue" : "#fff";
 		});
 	enterNodes.append("text")
 		.text(function(d) {
 			return d.node.type === "element" ? d.node.tagName : d.node.type;
 		})
-		.attr("transform", function(d){
+		.attr("transform", function(d) {
 			return "translate(" + 5 + "," + 0 + ")";
 		});
 
@@ -248,6 +278,8 @@ function redraw(center, cached = false, source) {
 		.style("fill", function(d) {
 			if (d.isme)
 				return "red";
+			if (d.fillStyle)
+				return d.fillStyle;
 			return (!d.children && d._children) ? " steelblue" : "#fff";
 		});
 
