@@ -93,7 +93,7 @@ function handleMouseOverEvent(d) {
 }
 
 function handleMouseOutEvent(d) {
-	removeAllChildren(detailShow);
+	//removeAllChildren(detailShow);
 	d3.select(this).style("cursor", "default");
 }
 

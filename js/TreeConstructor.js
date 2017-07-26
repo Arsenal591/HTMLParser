@@ -120,4 +120,7 @@ class DOMTree {
 	get root(){
 		return this.__getRoot();
 	}
+	find_all(_tagName, _attr, _str, limit = undefined, resursive = true){
+		return this.root.find_all(_tagName, _attr, _str, limit, resursive);
+	}
 }
