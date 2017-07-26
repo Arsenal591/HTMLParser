@@ -105,18 +105,18 @@ function handleClickEvent(d) {
 	redraw(currentCenter, true, d);
 }
 
-function markNodesOfSameType(d) {
+function markNodesOfSameType(d, color) {
 	if (d.node.type === "text") {
 		for (let node of nodes) {
 			if (node.node.type === "text")
-				node.fillStyle = "orange";
+				node.fillStyle = color;
 			else
 				node.fillStyle = undefined;
 		}
 	} else {
 		for (let node of nodes) {
 			if (node.node.tagName === d.node.tagName)
-				node.fillStyle = "orange";
+				node.fillStyle = color;
 			else
 				node.fillStyle = undefined;
 		}
@@ -177,9 +177,15 @@ var menu = [{
 	},
 
 }, {
-	title: 'Mark nodes of the same type.',
+	title: function(d){
+		if(!d.fillStyle)
+			return 'Mark nodes of the same type.';
+		else
+			return 'Unmark nodes of the same type.';
+	},
 	action: function(elem, d, i) {
-		markNodesOfSameType(d);
+		var color = d.fillStyle? "#fff": "orange";
+		markNodesOfSameType(d, color);
 		redraw(currentCenter, true);
 	}
 }]
