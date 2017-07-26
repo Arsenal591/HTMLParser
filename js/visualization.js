@@ -248,7 +248,7 @@ function redraw(center, cached = false, source) {
 		.style("fill", function(d) {
 			if (d.isme)
 				return "red";
-			return (!d.children && d._children) ? "blue" : "#fff";
+			return (!d.children && d._children) ? " steelblue" : "#fff";
 		});
 
 	var exitNodes = nodeExit.transition()
