@@ -170,13 +170,15 @@ var menu = [{
 		d.node.extract();
 		redraw(currentCenter);
 	},
-}, {
+}, 
+{
 	title: 'Visualize the node.',
 	action: function(elem, d, i) {
 		redraw(d.node);
 	},
 
-}, {
+},
+{
 	title: function(d){
 		if(!d.fillStyle)
 			return 'Mark nodes of the same type.';
