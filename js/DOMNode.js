@@ -415,7 +415,7 @@ class DOMNode {
 			if (x) {
 				let flag = Queryset.fit(x, _tagName, _attr, _str);
 				if (flag) {
-					result.push(x);
+					result.add(x);
 					if (limit && result.length >= limit)
 						break;
 				}
@@ -427,10 +427,10 @@ class DOMNode {
 }
 
 class Queryset {
-	constructor() {
-		var _data = [];
-		this.push = function(elem) {
-			_data.push(elem);
+	constructor(set) {
+		var _data = new Set(set);
+		this.add = function(elem) {
+			_data.add(elem);
 		}
 		this.__getData = function() {
 			return _data;
@@ -439,8 +439,8 @@ class Queryset {
 	get data() {
 		return this.__getData();
 	}
-	get length() {
-		return this.__getData().length;
+	get size() {
+		return this.__getData().size;
 	}
 	static fitAttr(node, key, value) {
 		var nodeValue = node.attr[key];
@@ -499,20 +499,41 @@ class Queryset {
 			}
 		}
 		if (_str) {
-			//TODO:
+			if(typeof _str === "string"){
+				if(node.text !== _str)
+					return false;
+			}
+			else if(_str instanceof RegExp){
+				if(!_str.test(node.text))
+					return false;
+			}
 		}
 		return true;
 	}
 	filter(_tagName, _attr, _str) {
-
+		var result = new Queryset();
+		for(let elem in this.data){
+			if(Queryset.fit(elem, _tagName, _attr, _str))
+				result.add(elem);
+		}
+		return result;
 	}
 	union(otherSet) {
-
+		var thisSet = this.data;
+		var thatSet = otherSet.data;
+		var unionSet = new Set([...thisSet, ...thatSet]);
+		return new Queryset(unionSet);
 	}
 	intersection(otherSet) {
-
+		var thisSet = this.data;
+		var thatSet = otherSet.data;
+		var intersectionSet = new Set([...thisSet].filter(x => thatSet.has(x)));
+		return new Queryset(intersectionSet);
 	}
 	difference(otherSet) {
-
+		var thisSet = this.data;
+		var thatSet = otherSet.data;
+		var differenceSet = new Set([...thisSet].filter(x => !thatSet.has(x)));
+		return new Queryset(differenceSet);
 	}
 }
