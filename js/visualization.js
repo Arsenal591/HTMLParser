@@ -67,6 +67,24 @@ function moveSubtree(d, dx, dy) {
 	}
 }
 
+function markNodesOfSameType(d, color) {
+	if (d.node.type === "text") {
+		for (let node of nodes) {
+			if (node.node.type === "text")
+				node.fillStyle = color;
+			else
+				node.fillStyle = undefined;
+		}
+	} else {
+		for (let node of nodes) {
+			if (node.node.tagName === d.node.tagName)
+				node.fillStyle = color;
+			else
+				node.fillStyle = undefined;
+		}
+	}
+}
+
 function handleDragEvent(d) {
 	var dx = d3.event.dx;
 	var dy = d3.event.dy;
@@ -105,58 +123,36 @@ function handleClickEvent(d) {
 	redraw(currentCenter, true, d);
 }
 
-function markNodesOfSameType(d, color) {
-	if (d.node.type === "text") {
-		for (let node of nodes) {
-			if (node.node.type === "text")
-				node.fillStyle = color;
-			else
-				node.fillStyle = undefined;
-		}
-	} else {
-		for (let node of nodes) {
-			if (node.node.tagName === d.node.tagName)
-				node.fillStyle = color;
-			else
-				node.fillStyle = undefined;
-		}
-	}
-}
-
-contextMenu = function(menu, openCallback) {
-	d3.selectAll('.d3-context-menu').data([1])
-		.enter()
-		.append('div')
-		.attr('class', 'd3-context-menu');
+contextMenu = function(menu) {
+	d3.selectAll('.d3-context-menu').data([1]).enter()
+		.append('div').attr('class', 'd3-context-menu');
 
 	d3.select('body').on('click.d3-context-menu', function() {
-		d3.select('.d3-context-menu').style('display', 'none');
+		d3.select('.d3-context-menu').style('display','none');
 	});
 
 	return function(data, index) {
-		var elm = this;
+		var temp = this;
 
 		d3.selectAll('.d3-context-menu').html('');
 		var list = d3.selectAll('.d3-context-menu').append('ul');
 		list.selectAll('li').data(menu).enter()
 			.append('li')
 			.html(function(d) {
+				if(typeof d.title === "string")
+					return d.title;
+				else if(typeof d.title === "function")
+					return d.title(data);
 				return (typeof d.title === 'string') ? d.title : d.title(data);
 			})
-			.on('click', function(d, i) {
-				d.action(elm, data, index);
+			.on('click', function(d) {
+				d.action(temp, data, index);
 				d3.select('.d3-context-menu').style('display', 'none');
 			});
 
-		if (openCallback) {
-			if (openCallback(data, index) === false) {
-				return;
-			}
-		}
-
 		d3.select('.d3-context-menu')
-			.style('left', (d3.event.pageX - 2) + 'px')
-			.style('top', (d3.event.pageY - 2) + 'px')
+			.style('left', (d3.event.pageX - 4)+"px")
+			.style('top', (d3.event.pageY - 4)+"px")
 			.style('display', 'block');
 
 		d3.event.preventDefault();
