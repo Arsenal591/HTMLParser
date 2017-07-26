@@ -74,7 +74,7 @@ function handleUploadFile() {
 
 						let lastSpaceStart = 0;
 						let tagNameAppeared = false;
-						let re = /([^\s\=]+)(?:(\s*=\s*)(\S+))?/g;
+						let re = /([^\s\=]+)(?:(\s*=\s*)((?:\".*?\")|(?:\'.*?\')|(?:[^\'\"\s]+)))?/g;
 
 						let matchedText = re.exec(subText);
 						while (matchedText) {
@@ -189,6 +189,7 @@ function addDetailMessage(node) {
 
 	if (node.type === "text") {
 		appendColoredText(detailShow, "Text : " + node.text, "normaltext");
+		detailShow.appendChild(document.createElement("br"));
 	} else {
 		appendColoredText(detailShow, 
 						"Tag name : " + (node.tagName.length ? node.tagName : "None")
