@@ -1,0 +1,57 @@
+.node circle
+{
+    fill: #fff;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+}
+
+.node
+{
+    font: 12px sans-serif;
+}
+
+.link
+{
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 1.5px;
+}
+
+
+.d3-context-menu
+{
+    font-family: Consolas;
+    font-size: 14px;
+
+    position: absolute;
+    z-index: 100;
+
+    display: none;
+
+    min-width: 150px;
+
+    border: 1px solid #d4d4d4;
+    border-radius: 4px;
+    background-color: #f2f2f2;
+}
+
+.d3-context-menu ul
+{
+    margin: 4px 0;
+    padding: 0;
+
+    list-style-type: none;
+
+    cursor: default;
+}
+
+.d3-context-menu ul li
+{
+    padding: 4px 16px;
+}
+
+.d3-context-menu ul li:hover
+{
+    color: #fefefe;
+    background-color: #4677f8;
+}
