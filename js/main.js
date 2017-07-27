@@ -107,10 +107,10 @@ function handleUploadFile() {
 					lineNumber++;
 					let text = htmlReader.result.substring(startIndex, i);
 
+					appendColoredText(htmlShow, text, "normaltext");
+
 					htmlShow.appendChild(document.createElement("br"));
 					appendColoredText(htmlShow, String(lineNumber) + " ", "linenumbertext");
-
-					appendColoredText(htmlShow, text, "normaltext");
 
 					startIndex = i + 1;
 				}
