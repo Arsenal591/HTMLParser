@@ -146,6 +146,8 @@ function addErrorMessage(e) {
 		appendColoredText(errorShow, "    at line " + e.lineNumber, "normaltext");
 
 	errorShow.appendChild(document.createElement("br"));
+
+	errorShow.scrollTop = errorShow.scrollHeight;
 }
 
 function removeAllChildren(node) {
@@ -254,6 +256,8 @@ function addOutputMessage(obj){
 		appendColoredText(detailShow, line, "normaltext");
 		detailShow.appendChild(document.createElement("br"));
 	}
+
+	detailShow.scrollTop = detailShow.scrollHeight;
 }
 
 window.addEventListener("resize", function() {
